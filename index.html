@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b0c0c" />
-<meta name="description" content="git show — o evento anual do DA de TI da UNIVATES que premia os melhores projetos pessoais e acadêmicos dos alunos do curso." />
-<meta property="og:title" content="git show — Mostra o que tu commitou" />
+<meta name="description" content="git show. O evento anual do DATI da UNIVATES que premia os melhores projetos pessoais e acadêmicos dos alunos do curso." />
+<meta property="og:title" content="git show · Mostra o que tu commitou" />
 <meta property="og:description" content="Submete o link do teu repo. A banca avalia. Os melhores vão pro Demo Day." />
 <meta property="og:type" content="website" />
-<title>git show — DA de TI · UNIVATES</title>
+<title>git show · DATI · UNIVATES</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet" />
@@ -16,26 +16,26 @@
 
 <style>
 /* =========================================================
-   git show — disruptive, terminal-native design system
+   git show: disruptive, terminal-native design system
    No conventional CSS. Mono everywhere. Diff as language.
    ========================================================= */
 
 :root {
-  /* warm phosphor near-black */
-  --bg: #0b0c0c;
-  --bg-1: #101213;
-  --bg-2: #15181a;
-  --bg-3: #1c2024;
-  --line: #232830;
-  --line-strong: #2f3540;
+  /* pure black with elevated tiers so cards pop */
+  --bg: #000000;
+  --bg-1: #0b0f17;
+  --bg-2: #121826;
+  --bg-3: #1c2438;
+  --line: #1f2838;
+  --line-strong: #2e3a52;
 
-  /* warm cream */
+  /* warm cream foreground */
   --fg: #ece6d5;
   --fg-1: #c5c0b1;
   --fg-2: #8e8a7e;
   --fg-3: #585548;
 
-  /* diff colors — the alphabet of this language */
+  /* diff colors: the alphabet of this language */
   --add: #4ec264;
   --add-bg: rgba(78, 194, 100, 0.08);
   --add-bg-strong: rgba(78, 194, 100, 0.16);
@@ -43,17 +43,18 @@
   --rem-bg: rgba(255, 93, 93, 0.08);
   --rem-bg-strong: rgba(255, 93, 93, 0.16);
 
-  /* hash amber */
-  --hash: #f0b95e;
-  --hash-dim: rgba(240, 185, 94, 0.18);
+  /* hash now blue (replaces amber) */
+  --hash: #6fa8ff;
+  --hash-dim: rgba(111, 168, 255, 0.16);
+  --hash-glow: rgba(111, 168, 255, 0.35);
 
-  /* HEAD — the single highlight color of the whole site */
+  /* HEAD: the single highlight color of the whole site */
   --head: #79f2c5;
   --head-dim: rgba(121, 242, 197, 0.12);
   --head-glow: rgba(121, 242, 197, 0.35);
 
-  /* link */
-  --link: #82b9ff;
+  /* link unified with hash blue */
+  --link: #6fa8ff;
 
   /* spacing scale */
   --gut: clamp(1rem, 2.5vw, 2rem);
@@ -83,14 +84,15 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 20% 0%, rgba(121, 242, 197, 0.04), transparent 40%),
-    radial-gradient(circle at 90% 30%, rgba(240, 185, 94, 0.025), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 18% 0%, rgba(121, 242, 197, 0.06), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 92% 22%, rgba(111, 168, 255, 0.05), transparent 60%),
+    radial-gradient(ellipse 70% 30% at 50% 100%, rgba(121, 242, 197, 0.03), transparent 60%),
     var(--bg);
   position: relative;
   overflow-x: hidden;
 }
 
-/* subtle CRT scanlines + grain — barely perceptible */
+/* subtle CRT scanlines + grain, barely perceptible */
 body::before {
   content: "";
   position: fixed;
@@ -145,7 +147,7 @@ a:hover { color: var(--head); background: var(--head-dim); }
 .icon.lead { margin-right: 0.5em; }
 .icon.trail { margin-left: 0.4em; }
 
-/* ============= TOP STATUS BAR — tmux-style ============= */
+/* ============= TOP STATUS BAR (tmux-style) ============= */
 .bar-top {
   position: sticky;
   top: 0;
@@ -249,10 +251,15 @@ main {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 2rem;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--fg-2);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.03em;
+}
+.hero-meta .kv .label {
+  color: var(--fg-3);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  margin-right: 0.5rem;
 }
 .hero-meta .kv strong {
   color: var(--fg);
@@ -264,7 +271,7 @@ main {
   color: var(--hash);
   background: var(--hash-dim);
   padding: 0.05rem 0.4rem;
-  margin-left: 0.4rem;
+  font-weight: 700;
 }
 
 .hero-cta {
@@ -325,8 +332,7 @@ main {
 }
 .nav-log .label {
   color: var(--fg-3);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
   padding-top: 0.2em;
   white-space: nowrap;
 }
@@ -427,6 +433,86 @@ section.scene {
 .hunk .line.rem { background: var(--rem-bg); }
 .hunk .line.rem .mark { color: var(--rem); }
 .hunk .line .code { padding-right: 0.5rem; }
+.hunk .line.para { padding-top: 0.7rem; }
+.hunk .line.rem del,
+.list-rem li del {
+  color: var(--fg-2);
+  text-decoration: line-through;
+  text-decoration-color: var(--rem);
+  text-decoration-thickness: 1.5px;
+}
+
+/* ============= DATI ENTERPRISE PARTNERS ============= */
+.partners {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 0.5rem;
+}
+.partner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  min-height: 140px;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+.partner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  border-top: 1px solid var(--hash);
+  border-left: 1px solid var(--hash);
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+.partner::after {
+  content: "";
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 8px; height: 8px;
+  border-bottom: 1px solid var(--hash);
+  border-right: 1px solid var(--hash);
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+.partner:hover {
+  border-color: var(--head);
+  background: var(--bg-2);
+  transform: translateY(-3px);
+}
+.partner:hover::before, .partner:hover::after {
+  border-color: var(--head);
+  opacity: 1;
+}
+.partner img {
+  max-width: 100%;
+  max-height: 72px;
+  object-fit: contain;
+  filter: brightness(0.95);
+  transition: filter 0.2s ease;
+}
+.partner:hover img { filter: brightness(1.05); }
+
+/* ============= DATI BRAND MARK ============= */
+.dati-mark {
+  display: block;
+  max-width: 110px;
+  height: auto;
+  margin: 0 0 1.25rem;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+.dati-mark:hover { opacity: 1; }
+.hero-meta .dati-inline {
+  display: inline-block;
+  height: 1.6em;
+  vertical-align: -0.4em;
+  margin-left: 0.5rem;
+}
 
 /* prose inside scenes */
 .prose {
@@ -455,7 +541,7 @@ section.scene {
   color: var(--fg);
 }
 .callout strong { color: var(--head); }
-.callout .lead { display: block; color: var(--head); font-size: 11px; letter-spacing: 0.15em; margin-bottom: 0.4rem; text-transform: uppercase; }
+.callout .lead { display: block; color: var(--head); font-size: 11px; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-style: italic; }
 
 /* lists styled as add/remove */
 .list-add, .list-rem {
@@ -552,9 +638,8 @@ section.scene {
   background: var(--bg-2);
   font-weight: 700;
   color: var(--head);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
 }
 .criteria tr:last-child td { border-bottom: none; }
 .criteria tr:hover td { background: var(--bg-1); }
@@ -618,11 +703,21 @@ section.scene {
 .head-prize .prize-tag { color: var(--head); border-color: var(--head); }
 .prize h3 {
   margin: 0 0 0.5rem;
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
   font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 .prize h3 .ref { color: var(--head); font-weight: 800; }
+.prize h3 .prize-sub {
+  display: block;
+  font-size: 0.55em;
+  color: var(--fg-2);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
 .prize .gloss {
   font-style: italic;
   color: var(--fg-2);
@@ -693,8 +788,7 @@ section.scene {
 .contrib .card .role {
   color: var(--hash);
   font-size: 10.5px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  letter-spacing: 0.12em;
   margin-bottom: 0.5rem;
 }
 .contrib .card h4 {
@@ -759,7 +853,7 @@ section.scene {
   font-size: 12.5px;
 }
 
-/* ============= BOTTOM STATUS BAR — vim modeline ============= */
+/* ============= BOTTOM STATUS BAR (vim modeline) ============= */
 .bar-bottom {
   position: fixed;
   bottom: 0;
@@ -846,10 +940,10 @@ section.scene {
 <body>
 
 <!-- =========================================================
-     TOP STATUS BAR — looks like a tmux/vim status line
+     TOP STATUS BAR: looks like a tmux/vim status line
      ========================================================= -->
 <div class="bar-top" role="banner" aria-label="terminal status">
-  <span><span class="prompt-host">da-ti@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git show v1.0.0</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
+  <span><span class="prompt-host">dati@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git show v1.0.0</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
   <span class="center">[ regulamento.md · 1ª edição · 2026 ]</span>
   <span class="right">
     <span class="pill"><span class="dot"></span><span class="label">submissões em breve</span></span>
@@ -862,14 +956,15 @@ section.scene {
        HERO
        ===================================================== -->
   <section class="hero" id="hero">
+    <img src="dati-logo.png" alt="DATI" class="dati-mark" onerror="this.style.display='none'"/>
     <div class="hero-prompt"><span class="glyph">$</span> cat <span class="path">README.md</span></div>
     <h1 class="hero-title"><span class="gt">&gt;</span> git show<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="hero-sub">Mostra o que tu <span class="commit-emph">commitou</span>.<br/>O evento que coloca os projetos dos alunos de TI da UNIVATES na vitrine.</p>
+    <p class="hero-sub">Mostra o que tu <span class="commit-emph">commitou</span>. O evento que coloca os projetos dos alunos de TI da UNIVATES na vitrine.</p>
 
     <div class="hero-meta">
-      <span class="kv">edição<span class="var">{{ano}}</span><strong>· 1ª edição</strong></span>
-      <span class="kv">realização<strong>DA de TI · UNIVATES</strong></span>
-      <span class="kv">status<strong style="color: var(--head);">aceitando submissões em breve</strong></span>
+      <span class="kv"><span class="label">edição</span><strong>1ª · <span class="var">2026</span></strong></span>
+      <span class="kv"><span class="label">realização</span><strong>DATI · UNIVATES</strong></span>
+      <span class="kv"><span class="label">status</span><strong style="color: var(--head);">submissões em breve</strong></span>
     </div>
 
     <div class="hero-cta">
@@ -880,7 +975,7 @@ section.scene {
   </section>
 
   <!-- =====================================================
-       NAV — as if it were `git log --oneline`
+       NAV: as if it were `git log --oneline`
        ===================================================== -->
   <nav class="nav-log" aria-label="seções">
     <span class="label">$ git log --oneline</span>
@@ -894,6 +989,7 @@ section.scene {
       <li><a href="#premios"><span class="sha">1a2b3c4</span>titulação e prêmios</a></li>
       <li><a href="#calendario"><span class="sha">9d8e7f6</span>calendário</a></li>
       <li><a href="#banca"><span class="sha">5b4c3d2</span>banca</a></li>
+      <li><a href="#partners"><span class="sha">4b9d2c1</span>enterprise partners</a></li>
       <li><a href="#apoiadores"><span class="sha">e1f0a9b</span>apoiadores</a></li>
       <li><a href="#final"><span class="sha">6d5c4b3</span>disposições</a></li>
       <li><a href="#contato"><span class="sha">0a1b2c3</span>contato</a></li>
@@ -906,7 +1002,7 @@ section.scene {
   <section class="scene reveal" id="sobre">
     <header class="commit-header">
       <span class="commit-sha">commit a3f2c1b</span>
-      <span class="commit-author">Author: DA de TI &lt;da-ti@univates&gt;</span>
+      <span class="commit-author">Author: DATI &lt;da.ti@univates.br&gt;</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> O que é o <code style="font-size:0.85em">git show</code></h2>
     </header>
@@ -916,21 +1012,18 @@ section.scene {
 
     <div class="hunk">
       <div class="hunk-header">@@ -0,0 +1,42 @@ tl;dr</div>
-      <div class="line add"><span class="mark">+</span><span class="code"><strong>git show</strong> é o evento anual do DA de TI da UNIVATES.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code"><strong>git show</strong> é o evento anual do DATI da UNIVATES.</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Premia os melhores projetos pessoais e acadêmicos dos alunos do curso.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
       <div class="line"><span class="mark"></span><span class="code">A ideia é simples:</span></div>
-      <div class="line"><span class="mark"></span><span class="code">você já tem um repositório legal no seu GitHub —</span></div>
-      <div class="line"><span class="mark"></span><span class="code">um projeto pessoal, um trabalho de aula que ficou bom,</span></div>
+      <div class="line"><span class="mark"></span><span class="code">você já tem um repositório legal no seu GitHub.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">Um projeto pessoal, um trabalho de aula que ficou bom,</span></div>
       <div class="line"><span class="mark"></span><span class="code">uma ideia maluca que programou num fim de semana.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Você <strong>submete o link</strong>.</span></div>
-      <div class="line add"><span class="mark">+</span><span class="code">Uma banca (professores + empresas apoiadoras) avalia.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Uma banca (professores e empresas apoiadoras) avalia.</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Os melhores vão pro <strong>Demo Day</strong>.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
-      <div class="line rem"><span class="mark">−</span><span class="code">~~Montar projeto novo~~</span></div>
-      <div class="line rem"><span class="mark">−</span><span class="code">~~Fricção burocrática~~</span></div>
-      <div class="line rem"><span class="mark">−</span><span class="code">~~PowerPoint até a final~~</span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code"><del>Montar projeto novo</del></span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code"><del>Fricção burocrática</del></span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code"><del>PowerPoint até a final</del></span></div>
     </div>
 
     <div class="callout">
@@ -946,7 +1039,7 @@ section.scene {
   <section class="scene reveal" id="motivacao">
     <header class="commit-header">
       <span class="commit-sha">commit 7d4e9a1</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Por que existe</h2>
     </header>
@@ -964,7 +1057,7 @@ section.scene {
   <section class="scene reveal" id="workflow">
     <header class="commit-header">
       <span class="commit-sha">commit b1c2d3e</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Como funciona</h2>
     </header>
@@ -981,7 +1074,7 @@ section.scene {
         <div class="num">02</div>
         <div class="body">
           <strong>Triagem técnica</strong>
-          <span>Comissão do DA + professores valida regras mínimas e qualidade básica.</span>
+          <span>Comissão do DATI + professores valida regras mínimas e qualidade básica.</span>
         </div>
       </div>
       <div class="step">
@@ -1021,7 +1114,7 @@ section.scene {
   <section class="scene reveal" id="regras">
     <header class="commit-header">
       <span class="commit-sha">commit f5a8b2c</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Regras de submissão</h2>
     </header>
@@ -1040,9 +1133,9 @@ section.scene {
       <li>Deve ser <strong>público</strong> e acessível sem login.</li>
       <li>Hospedado em GitHub, GitLab, Bitbucket ou plataforma equivalente.</li>
       <li>Criado <strong>há pelo menos 30 dias</strong> antes da submissão (verificado pela data de criação do repositório).</li>
-      <li><strong>Pelo menos 10 commits</strong>, em <strong>ao menos 5 datas distintas</strong>. Não vale o "init dump" — a banca quer ver evolução.</li>
+      <li><strong>Pelo menos 10 commits</strong>, em <strong>ao menos 5 datas distintas</strong>. Não vale o "init dump". A banca quer ver evolução.</li>
       <li>Precisa ter um <code>README.md</code> com: nome + descrição curta, stack/tecnologias, instruções de execução local, e ao menos 1 screenshot/GIF/link online.</li>
-      <li>Código <strong>majoritariamente autoral</strong>. Uso de libs, frameworks, snippets e ferramentas de IA é esperado — mas não pode ser fork cosmético nem resultado de um único prompt copiado.</li>
+      <li>Código <strong>majoritariamente autoral</strong>. Uso de libs, frameworks, snippets e ferramentas de IA é esperado, mas não pode ser fork cosmético nem resultado de um único prompt copiado.</li>
     </ul>
 
     <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/aceitos.md</span></div>
@@ -1053,13 +1146,13 @@ section.scene {
       <li>Iniciações científicas e TCCs em andamento</li>
       <li>Projetos de hackathon expandidos</li>
       <li>Ferramentas internas, automações, scripts, jogos, apps, sites, bots, libs, extensões...</li>
-      <li><strong>Ideias experimentais, malucas ou "só pra ver se dá"</strong> — bem-vindas e incentivadas.</li>
+      <li><strong>Ideias experimentais, malucas ou "só pra ver se dá"</strong>. Bem-vindas e incentivadas.</li>
     </ul>
 
     <div class="diff-file" style="margin-top:1.5rem"><span class="a">--- a/regras/nao-entra.md</span></div>
     <h3 style="font-size:1.1rem;color:var(--rem);margin:0.5rem 0;">## O que não entra</h3>
     <ul class="list-rem">
-      <li>Repositórios privados — ou que viraram públicos só para a submissão.</li>
+      <li>Repositórios privados, ou que viraram públicos só para a submissão.</li>
       <li>Tutoriais seguidos passo a passo sem contribuição original significativa.</li>
       <li>Forks com mudanças mínimas.</li>
       <li>Projetos que violem direitos autorais, termos de uso de plataformas ou ética acadêmica.</li>
@@ -1072,7 +1165,7 @@ section.scene {
   <section class="scene reveal" id="pitch">
     <header class="commit-header">
       <span class="commit-sha">commit 2e6f0d4</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> O pitch é o README</h2>
     </header>
@@ -1099,7 +1192,7 @@ section.scene {
     </ul>
 
     <div class="prose">
-      <p>Quem chega à final apresenta ao vivo no Demo Day — aí sim, com slide, demo rolando ao vivo, do jeito que preferir.</p>
+      <p>Quem chega à final apresenta ao vivo no Demo Day. Aí sim: com slide, demo rolando ao vivo, do jeito que preferir.</p>
     </div>
   </section>
 
@@ -1109,7 +1202,7 @@ section.scene {
   <section class="scene reveal" id="criterios">
     <header class="commit-header">
       <span class="commit-sha">commit 8c4b7a9</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Critérios de avaliação</h2>
     </header>
@@ -1148,7 +1241,7 @@ section.scene {
     </table>
 
     <div class="prose" style="font-size:0.92rem;color:var(--fg-2);">
-      <p>Na fase de <strong>triagem</strong>, o critério "Pitch" não é considerado — a banca avalia somente pelo repositório. O peso do pitch só entra na <strong>final</strong>.</p>
+      <p>Na fase de <strong>triagem</strong>, o critério "Pitch" não é considerado. A banca avalia somente pelo repositório. O peso do pitch só entra na <strong>final</strong>.</p>
     </div>
   </section>
 
@@ -1158,34 +1251,34 @@ section.scene {
   <section class="scene reveal" id="premios">
     <header class="commit-header">
       <span class="commit-sha">commit 1a2b3c4</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Titulação e premiação</h2>
     </header>
 
     <div class="prizes">
       <article class="prize head-prize">
-        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.5h6v3.5a3 3 0 11-6 0V2.5z"/><path d="M5 3.5H2.5v1.5A2 2 0 004.5 7"/><path d="M11 3.5h2.5v1.5A2 2 0 0111.5 7"/><path d="M5.5 13.5h5"/><path d="M8 9v4.5"/></svg>grande vencedor · 1 projeto</span>
-        <h3><span class="ref">HEAD</span> — o topo da árvore</h3>
+        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.5h6v3.5a3 3 0 11-6 0V2.5z"/><path d="M5 3.5H2.5v1.5A2 2 0 004.5 7"/><path d="M11 3.5h2.5v1.5A2 2 0 0111.5 7"/><path d="M5.5 13.5h5"/><path d="M8 9v4.5"/></svg>Winner 2026 · 1 projeto</span>
+        <h3><span class="ref">HEAD · Winner 2026</span><span class="prize-sub">o topo da árvore</span></h3>
         <p class="gloss">No git, <code>HEAD</code> aponta para o commit atual: o topo, a referência. O HEAD do <code>git show</code> é o projeto que define o ano.</p>
         <ul>
-          <li><strong>Troféu HEAD rotativo</strong> — troféu físico oficial que fica com o vencedor por 1 ano. O nome do projeto e do(s) autor(es) é gravado em plaquinha. Na edição seguinte, retorna pra cerimônia e é entregue ao próximo HEAD. <em>Vira tradição.</em></li>
-          <li><strong>Domínio <code>.dev</code> por 1 ano</strong> custeado pelo DA, à escolha do(s) vencedor(es).</li>
-          <li><strong>Selo digital "HEAD · git show {{ano}}"</strong> — badge oficial pra fixar no README. Fica no GitHub para sempre.</li>
-          <li><strong>Kit Finalista completo</strong> — camiseta personalizada do <code>git show {{ano}}</code> + copo térmico oficial.</li>
-          <li><strong>Destaque permanente</strong> no Hall da Fama do DA de TI.</li>
+          <li><strong>Troféu HEAD rotativo:</strong> troféu físico oficial que fica com o vencedor por 1 ano. O nome do projeto e do(s) autor(es) é gravado em plaquinha. Na edição seguinte, retorna pra cerimônia e é entregue ao próximo HEAD. <em>Vira tradição.</em></li>
+          <li><strong>Domínio <code>.dev</code> por 1 ano</strong> custeado pelo DATI, à escolha do(s) vencedor(es).</li>
+          <li><strong>Selo digital "HEAD · git show 2026":</strong> badge oficial pra fixar no README. Fica no GitHub para sempre.</li>
+          <li><strong>Kit Finalista completo:</strong> camiseta personalizada do <code>git show 2026</code> + copo térmico oficial.</li>
+          <li><strong>Destaque permanente</strong> no Hall da Fama do DATI.</li>
         </ul>
       </article>
 
       <article class="prize">
-        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" stroke-linejoin="miter" aria-hidden="true"><path d="M8 1.5l1.9 4.3 4.6.4-3.5 3.1 1 4.6L8 11.5l-4 2.4 1-4.6L1.5 6.2l4.6-.4L8 1.5z"/></svg>finalistas · até 5 projetos</span>
-        <h3><span class="ref">Top Commits</span> — os destaques do histórico</h3>
+        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" stroke-linejoin="miter" aria-hidden="true"><path d="M8 1.5l1.9 4.3 4.6.4-3.5 3.1 1 4.6L8 11.5l-4 2.4 1-4.6L1.5 6.2l4.6-.4L8 1.5z"/></svg>Featured 2026 · até 5 finalistas</span>
+        <h3><span class="ref">Top Commits · Featured 2026</span><span class="prize-sub">os destaques do histórico</span></h3>
         <p class="gloss">No git, top commits são os destaques recentes do histórico. Aqui, são os projetos que merecem o palco do Demo Day.</p>
         <ul>
-          <li><strong>Kit Finalista</strong> — camiseta personalizada do <code>git show {{ano}}</code> + copo térmico oficial.</li>
-          <li><strong>Selo digital "Top Commit · git show {{ano}}"</strong> pra fixar no README.</li>
+          <li><strong>Kit Finalista:</strong> camiseta personalizada do <code>git show 2026</code> + copo térmico oficial.</li>
+          <li><strong>Selo digital "Top Commit · git show 2026"</strong> pra fixar no README.</li>
           <li><strong>Apresentação no Demo Day</strong> com presença dos apoiadores e da banca.</li>
-          <li><strong>Destaque</strong> no Hall da Fama do DA de TI.</li>
+          <li><strong>Destaque</strong> no Hall da Fama do DATI.</li>
         </ul>
       </article>
     </div>
@@ -1197,7 +1290,7 @@ section.scene {
   <section class="scene reveal" id="calendario">
     <header class="commit-header">
       <span class="commit-sha">commit 9d8e7f6</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Calendário</h2>
     </header>
@@ -1218,7 +1311,7 @@ section.scene {
   <section class="scene reveal" id="banca">
     <header class="commit-header">
       <span class="commit-sha">commit 5b4c3d2</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> A banca</h2>
     </header>
@@ -1246,48 +1339,74 @@ section.scene {
     </div>
 
     <div class="prose" style="font-size:0.92rem;color:var(--fg-2);margin-top:1rem;">
-      <p>Critérios e pesos são públicos. As notas são compiladas pelo DA e o resultado é tabulado de forma transparente, com possibilidade de divulgação anonimizada das notas finais.</p>
+      <p>Critérios e pesos são públicos. As notas são compiladas pelo DATI e o resultado é tabulado de forma transparente, com possibilidade de divulgação anonimizada das notas finais.</p>
     </div>
   </section>
 
   <!-- =====================================================
-       APOIADORES — carta aberta
+       DATI ENTERPRISE PARTNERS
+       ===================================================== -->
+  <section class="scene reveal" id="partners">
+    <header class="commit-header">
+      <span class="commit-sha">commit 4b9d2c1</span>
+      <span class="commit-author">Author: DATI</span>
+      <span class="commit-date">Tag: &nbsp;&nbsp;&nbsp;&nbsp;v1.0.0-partners</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> DATI Enterprise Partners</h2>
+    </header>
+
+    <div class="prose">
+      <p>As empresas que apoiam o DATI em <code>2026</code> e compõem a banca da 1ª edição do <code>git show</code>:</p>
+    </div>
+
+    <div class="partners">
+      <div class="partner"><img src="retta.png" alt="Retta" loading="lazy" onerror="this.style.opacity='0.3'"/></div>
+      <div class="partner"><img src="Interact.png" alt="Interact" loading="lazy" onerror="this.style.opacity='0.3'"/></div>
+      <div class="partner"><img src="clinica.svg" alt="Clínica" loading="lazy" onerror="this.style.opacity='0.3'"/></div>
+    </div>
+
+    <div class="prose" style="font-size:0.9rem;color:var(--fg-2);margin-top:1rem;">
+      <p>Sua empresa quer entrar na próxima edição? <a href="#apoiadores">Leia a carta aberta abaixo</a>.</p>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       APOIADORES: carta aberta
        ===================================================== -->
   <section class="scene reveal" id="apoiadores">
     <header class="commit-header">
       <span class="commit-sha">commit e1f0a9b</span>
-      <span class="commit-author">Author: DA de TI &lt;da-ti@univates&gt;</span>
+      <span class="commit-author">Author: DATI &lt;da.ti@univates.br&gt;</span>
       <span class="commit-date">To: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;empresas-apoiadoras@</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Para os apoiadores</h2>
     </header>
 
     <div class="sponsor-letter">
-      <span class="stamp">CARTA ABERTA · APOIADORES OFICIAIS DO DA</span>
+      <span class="stamp">Carta aberta · apoiadores oficiais do DATI</span>
       <div class="prose">
         <p>Esta seção é uma carta aberta às empresas que já apoiam o Diretório Acadêmico de TI.</p>
-        <p>O <code>git show</code> <strong>não é um pedido de patrocínio à parte</strong>. É uma das ações que o DA entrega como contrapartida dentro do apoio que sua empresa já firmou conosco. <strong>Não há aporte financeiro adicional envolvido.</strong></p>
+        <p>O <code>git show</code> <strong>não é um pedido de patrocínio à parte</strong>. É uma das ações que o DATI entrega como contrapartida dentro do apoio que sua empresa já firmou conosco. <strong>Não há aporte financeiro adicional envolvido.</strong></p>
       </div>
 
       <h3>O que pedimos da empresa apoiadora</h3>
       <ul class="list-add">
-        <li><strong>Indicar 1 representante para compor a banca</strong> — idealmente alguém da área técnica (dev, tech lead, CTO, gerente de engenharia). Avaliação assíncrona e online, em janela de ~2 semanas.</li>
+        <li><strong>Indicar 1 representante para compor a banca.</strong> Idealmente alguém da área técnica (dev, tech lead, CTO, gerente de engenharia). Avaliação assíncrona e online, em janela de ~2 semanas.</li>
         <li><strong>Presença no Demo Day</strong> com pelo menos 1 representante (idealmente o mesmo da banca). Duração estimada: 2 horas, em data combinada.</li>
       </ul>
       <p class="prose" style="margin-top:-0.5rem;color:var(--fg-2);font-size:0.9rem;">Só isso.</p>
 
       <h3>O que a empresa ganha</h3>
       <ul class="list-add">
-        <li><strong>Acesso direto a uma vitrine curada</strong> dos melhores alunos de TI da UNIVATES — comprovadamente gente que constrói coisa por conta própria. O sinal técnico mais forte que existe pra contratação de júnior.</li>
+        <li><strong>Acesso direto a uma vitrine curada</strong> dos melhores alunos de TI da UNIVATES. Comprovadamente gente que constrói coisa por conta própria, o sinal técnico mais forte que existe pra contratação de júnior.</li>
         <li><strong>Visibilidade da marca</strong> no site oficial, material de divulgação e nos selos digitais que vencedores colam no README. Selos públicos no GitHub indefinidamente, com link pra página dos apoiadores.</li>
-        <li><strong>Networking direto no Demo Day</strong> — conversa com os finalistas sem intermediário, num formato que não é entrevista de emprego mas pode virar uma.</li>
-        <li><strong>Direito de propor um "Desafio Apoiador"</strong> opcional em edições futuras — sua empresa sugere um tema (sustentabilidade, fintech, automação industrial) e quem topa concorre numa categoria especial associada à sua marca.</li>
-        <li><strong>Selo de "Apoiador Fundador"</strong> para quem participar da 1ª edição — reconhecimento que entra no histórico do evento e fica em todas as edições seguintes.</li>
+        <li><strong>Networking direto no Demo Day.</strong> Conversa com os finalistas sem intermediário, num formato que não é entrevista de emprego mas pode virar uma.</li>
+        <li><strong>Direito de propor um "Desafio Apoiador"</strong> opcional em edições futuras. Sua empresa sugere um tema (sustentabilidade, fintech, automação industrial) e quem topa concorre numa categoria especial associada à sua marca.</li>
+        <li><strong>Selo de "Apoiador Fundador"</strong> para quem participar da 1ª edição. Reconhecimento que entra no histórico do evento e fica em todas as edições seguintes.</li>
       </ul>
 
       <h3>Por que isso importa</h3>
       <div class="prose">
         <p>Contratar dev júnior é <em>caro</em> e <em>arriscado</em>. Currículo conta pouco, entrevista técnica filtra mal, e a maior parte da decisão acaba sendo intuição.</p>
-        <p>O <code>git show</code> te coloca, em uma noite, na frente de alunos que <strong>já estão construindo coisas por conta própria</strong> — com código público, decisões documentadas e capacidade de explicar o que fizeram.</p>
+        <p>O <code>git show</code> te coloca, em uma noite, na frente de alunos que <strong>já estão construindo coisas por conta própria</strong>, com código público, decisões documentadas e capacidade de explicar o que fizeram.</p>
         <p style="color:var(--head);font-weight:500;">É a forma mais barata e direta de encurtar o ciclo de talento.</p>
       </div>
     </div>
@@ -1299,7 +1418,7 @@ section.scene {
   <section class="scene reveal" id="final">
     <header class="commit-header">
       <span class="commit-sha">commit 6d5c4b3</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Disposições finais</h2>
     </header>
@@ -1307,17 +1426,15 @@ section.scene {
     <div class="diff-file"><span class="b">+++ b/LICENSE</span></div>
     <div class="hunk">
       <div class="hunk-header">@@ disposições gerais @@</div>
-      <div class="line"><span class="mark"></span><span class="code">O DA de TI da UNIVATES reserva-se o direito de fazer ajustes pequenos</span></div>
+      <div class="line"><span class="mark"></span><span class="code">O DATI da UNIVATES reserva-se o direito de fazer ajustes pequenos</span></div>
       <div class="line"><span class="mark"></span><span class="code">neste regulamento até a abertura oficial das submissões.</span></div>
       <div class="line"><span class="mark"></span><span class="code">Após a abertura, eventuais mudanças só ocorrem por motivo de</span></div>
       <div class="line"><span class="mark"></span><span class="code">força maior e com aviso prévio a todos os inscritos.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
-      <div class="line"><span class="mark"></span><span class="code">Casos omissos serão resolvidos pela diretoria do DA em</span></div>
+      <div class="line para"><span class="mark"></span><span class="code">Casos omissos serão resolvidos pela diretoria do DATI em</span></div>
       <div class="line"><span class="mark"></span><span class="code">conjunto com a coordenação do curso.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
-      <div class="line"><span class="mark"></span><span class="code">A participação no `git show` implica concordância com este</span></div>
+      <div class="line para"><span class="mark"></span><span class="code">A participação no <code>git show</code> implica concordância com este</span></div>
       <div class="line"><span class="mark"></span><span class="code">regulamento e autorização para uso de nome, foto e descrição</span></div>
-      <div class="line"><span class="mark"></span><span class="code">do projeto em material institucional do evento e do DA.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">do projeto em material institucional do evento e do DATI.</span></div>
     </div>
   </section>
 
@@ -1327,19 +1444,18 @@ section.scene {
   <section class="scene reveal" id="contato">
     <header class="commit-header">
       <span class="commit-sha">commit 0a1b2c3</span>
-      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-author">Author: DATI</span>
       <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Contato</h2>
     </header>
 
     <div class="prose">
-      <p><strong>Diretório Acadêmico de Tecnologia da Informação — UNIVATES</strong></p>
+      <p><strong>Diretório Acadêmico de Tecnologia da Informação · UNIVATES</strong></p>
     </div>
 
     <div class="contact-links">
-      <a href="mailto:{{e-mail}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10"/><path d="M1.5 4l6.5 5 6.5-5"/></svg>{{e-mail}}</a>
-      <a href="{{instagram}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3.5"/><circle cx="8" cy="8" r="3.2"/><circle cx="11.6" cy="4.4" r="0.7" fill="currentColor" stroke="none"/></svg>@{{instagram}}</a>
-      <a href="{{site}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13"/><ellipse cx="8" cy="8" rx="3" ry="6.5"/></svg>{{site}}</a>
+      <a href="mailto:da.ti@univates.br"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10"/><path d="M1.5 4l6.5 5 6.5-5"/></svg>da.ti@univates.br</a>
+      <a href="https://instagram.com/dati.univates" target="_blank" rel="noopener"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3.5"/><circle cx="8" cy="8" r="3.2"/><circle cx="11.6" cy="4.4" r="0.7" fill="currentColor" stroke="none"/></svg>@dati.univates</a>
     </div>
 
     <div id="submeter" style="margin-top:2rem;">
@@ -1347,13 +1463,13 @@ section.scene {
     </div>
 
     <div class="signature">
+      <img src="dati-logo.png" alt="DATI" class="dati-mark" onerror="this.style.display='none'"/>
       <div class="sig-line"><span class="label">commit message:</span></div>
-      <div class="sig-line cob"><span class="who">Initial release: <code>git show {{ano}}</code> · 1ª edição.</span></div>
-      <div class="sig-line cob">&nbsp;</div>
-      <div class="sig-line"><span class="label">Signed-off-by:</span> <span class="who">Diretório Acadêmico de TI</span> &lt;<span class="email">{{e-mail}}</span>&gt;</div>
+      <div class="sig-line cob"><span class="who">Initial release: <code>git show 2026</code>, 1ª edição.</span></div>
+      <div class="sig-line"><span class="label">Signed-off-by:</span> <span class="who">Diretório Acadêmico de TI</span> &lt;<span class="email">da.ti@univates.br</span>&gt;</div>
       <div class="sig-line"><span class="label">Co-authored-by:</span> <span class="who">cada aluno que commitou</span> &lt;builds-things@univates&gt;</div>
       <div class="sig-line" style="margin-top:1.5rem;color:var(--fg-3);">
-        <em><code>git show</code> é uma iniciativa do DA de TI da UNIVATES.</em>
+        <em><code>git show</code> é uma iniciativa do DATI da UNIVATES.</em>
       </div>
     </div>
   </section>
@@ -1361,7 +1477,7 @@ section.scene {
 </main>
 
 <!-- =========================================================
-     BOTTOM STATUS BAR — vim modeline
+     BOTTOM STATUS BAR: vim modeline
      ========================================================= -->
 <div class="bar-bottom" role="contentinfo" aria-label="status">
   <span class="mode">NORMAL</span>
@@ -1408,6 +1524,7 @@ section.scene {
     premios:     { name: 'premios.md',          sha: '1a2b3c4' },
     calendario:  { name: 'calendario.md',       sha: '9d8e7f6' },
     banca:       { name: 'CODEOWNERS',          sha: '5b4c3d2' },
+    partners:    { name: 'PARTNERS.md',         sha: '4b9d2c1' },
     apoiadores:  { name: 'apoiadores.md',       sha: 'e1f0a9b' },
     final:       { name: 'LICENSE',             sha: '6d5c4b3' },
     contato:     { name: 'CONTACT.md',          sha: '0a1b2c3' },
