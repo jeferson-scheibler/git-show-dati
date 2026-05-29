@@ -804,31 +804,6 @@ section.scene {
 }
 .contrib .card p { margin: 0; color: var(--fg-2); font-size: 0.88rem; }
 
-/* sponsors carta */
-.sponsor-letter {
-  border: 1px solid var(--line);
-  background: var(--bg-1);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-.sponsor-letter > .stamp {
-  display: inline-block;
-  font-size: 10.5px;
-  letter-spacing: 0.15em;
-  color: var(--hash);
-  border: 1px dashed var(--hash);
-  padding: 0.25rem 0.6rem;
-  margin-bottom: 1rem;
-  transform: rotate(-1.5deg);
-}
-.sponsor-letter h3 {
-  margin: 1.25rem 0 0.5rem;
-  color: var(--head);
-  font-size: 1.15rem;
-  letter-spacing: 0.02em;
-}
-.sponsor-letter h3::before { content: "## "; color: var(--fg-3); }
-
 /* contact / footer */
 .signature {
   margin-top: clamp(4rem, 8vw, 6rem);
@@ -996,7 +971,6 @@ section.scene {
       <li><a href="#calendario"><span class="sha">9d8e7f6</span>calendário</a></li>
       <li><a href="#banca"><span class="sha">5b4c3d2</span>banca</a></li>
       <li><a href="#partners"><span class="sha">4b9d2c1</span>enterprise partners</a></li>
-      <li><a href="#apoiadores"><span class="sha">e1f0a9b</span>apoiadores</a></li>
       <li><a href="#final"><span class="sha">6d5c4b3</span>disposições</a></li>
       <li><a href="#contato"><span class="sha">0a1b2c3</span>contato</a></li>
     </ol>
@@ -1371,50 +1345,7 @@ section.scene {
     </div>
 
     <div class="prose" style="font-size:0.9rem;color:var(--fg-2);margin-top:1rem;">
-      <p>Sua empresa quer entrar na próxima edição? <a href="#apoiadores">Leia a carta aberta abaixo</a>.</p>
-    </div>
-  </section>
-
-  <!-- =====================================================
-       APOIADORES: carta aberta
-       ===================================================== -->
-  <section class="scene reveal" id="apoiadores">
-    <header class="commit-header">
-      <span class="commit-sha">commit e1f0a9b</span>
-      <span class="commit-author">Author: DATI &lt;da.ti@univates.br&gt;</span>
-      <span class="commit-date">To: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;empresas-apoiadoras@</span>
-      <h2 class="commit-msg"><span class="arrow">▸</span> Para os apoiadores</h2>
-    </header>
-
-    <div class="sponsor-letter">
-      <span class="stamp">Carta aberta · apoiadores oficiais do DATI</span>
-      <div class="prose">
-        <p>Esta seção é uma carta aberta às empresas que já apoiam o Diretório Acadêmico de TI.</p>
-        <p>O <code>git show</code> <strong>não é um pedido de patrocínio à parte</strong>. É uma das ações que o DATI entrega como contrapartida dentro do apoio que sua empresa já firmou conosco. <strong>Não há aporte financeiro adicional envolvido.</strong></p>
-      </div>
-
-      <h3>O que pedimos da empresa apoiadora</h3>
-      <ul class="list-add">
-        <li><strong>Indicar 1 representante para compor a banca.</strong> Idealmente alguém da área técnica (dev, tech lead, CTO, gerente de engenharia). Avaliação assíncrona e online, em janela de ~2 semanas.</li>
-        <li><strong>Presença no Demo Day</strong> com pelo menos 1 representante (idealmente o mesmo da banca). Duração estimada: 2 horas, em data combinada.</li>
-      </ul>
-      <p class="prose" style="margin-top:-0.5rem;color:var(--fg-2);font-size:0.9rem;">Só isso.</p>
-
-      <h3>O que a empresa ganha</h3>
-      <ul class="list-add">
-        <li><strong>Acesso direto a uma vitrine curada</strong> dos melhores alunos de TI da UNIVATES. Comprovadamente gente que constrói coisa por conta própria, o sinal técnico mais forte que existe pra contratação de júnior.</li>
-        <li><strong>Visibilidade da marca</strong> no site oficial, material de divulgação e nos selos digitais que vencedores colam no README. Selos públicos no GitHub indefinidamente, com link pra página dos apoiadores.</li>
-        <li><strong>Networking direto no Demo Day.</strong> Conversa com os finalistas sem intermediário, num formato que não é entrevista de emprego mas pode virar uma.</li>
-        <li><strong>Direito de propor um "Desafio Apoiador"</strong> opcional em edições futuras. Sua empresa sugere um tema (sustentabilidade, fintech, automação industrial) e quem topa concorre numa categoria especial associada à sua marca.</li>
-        <li><strong>Selo de "Apoiador Fundador"</strong> para quem participar da 1ª edição. Reconhecimento que entra no histórico do evento e fica em todas as edições seguintes.</li>
-      </ul>
-
-      <h3>Por que isso importa</h3>
-      <div class="prose">
-        <p>Contratar dev júnior é <em>caro</em> e <em>arriscado</em>. Currículo conta pouco, entrevista técnica filtra mal, e a maior parte da decisão acaba sendo intuição.</p>
-        <p>O <code>git show</code> te coloca, em uma noite, na frente de alunos que <strong>já estão construindo coisas por conta própria</strong>, com código público, decisões documentadas e capacidade de explicar o que fizeram.</p>
-        <p style="color:var(--head);font-weight:500;">É a forma mais barata e direta de encurtar o ciclo de talento.</p>
-      </div>
+      <p>Sua empresa quer entrar na próxima edição? Fale com a gente: <a href="mailto:da.ti@univates.br">da.ti@univates.br</a>.</p>
     </div>
   </section>
 
@@ -1531,7 +1462,6 @@ section.scene {
     calendario:  { name: 'calendario.md',       sha: '9d8e7f6' },
     banca:       { name: 'CODEOWNERS',          sha: '5b4c3d2' },
     partners:    { name: 'PARTNERS.md',         sha: '4b9d2c1' },
-    apoiadores:  { name: 'apoiadores.md',       sha: 'e1f0a9b' },
     final:       { name: 'LICENSE',             sha: '6d5c4b3' },
     contato:     { name: 'CONTACT.md',          sha: '0a1b2c3' },
   };
@@ -1539,7 +1469,7 @@ section.scene {
   const whereSha  = document.getElementById('where-sha');
 
   // Reveal observer: permissive — fires as soon as any sliver of the
-  // section enters the viewport, so tall sections (regras, apoiadores)
+  // section enters the viewport, so tall sections (regras, etc.)
   // always trigger. Unobserve after firing so animation runs once.
   const revealIO = new IntersectionObserver(entries => {
     entries.forEach(entry => {
