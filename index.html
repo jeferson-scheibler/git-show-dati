@@ -29,11 +29,11 @@
   --line: #1f2838;
   --line-strong: #2e3a52;
 
-  /* warm cream foreground */
-  --fg: #ece6d5;
-  --fg-1: #c5c0b1;
-  --fg-2: #8e8a7e;
-  --fg-3: #585548;
+  /* neutral grayscale foreground (only --fg keeps a microdose of warmth) */
+  --fg: #e9e7e1;
+  --fg-1: #b6b4ae;
+  --fg-2: #76746e;
+  --fg-3: #4d4c48;
 
   /* diff colors: the alphabet of this language */
   --add: #4ec264;
@@ -1532,10 +1532,23 @@ section.scene {
   const whereName = document.getElementById('where-section');
   const whereSha  = document.getElementById('where-sha');
 
-  const io = new IntersectionObserver(entries => {
+  // Reveal observer: permissive — fires as soon as any sliver of the
+  // section enters the viewport, so tall sections (regras, apoiadores)
+  // always trigger. Unobserve after firing so animation runs once.
+  const revealIO = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('in');
+        revealIO.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+
+  // Tracking observer: updates the bottom status bar when a section
+  // is in the middle band of the viewport.
+  const trackIO = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
         const id = entry.target.id;
         if (sectionMap[id] && whereName) {
           whereName.textContent = sectionMap[id].name;
@@ -1543,10 +1556,16 @@ section.scene {
         }
       }
     });
-  }, { threshold: 0.25, rootMargin: '-80px 0px -45% 0px' });
+  }, { threshold: 0, rootMargin: '-30% 0px -55% 0px' });
 
-  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+  document.querySelectorAll('section[id]').forEach(s => trackIO.observe(s));
+
+  // Safety net: if JS fails or IntersectionObserver misses anything,
+  // reveal everything after 2s so content is never permanently hidden.
+  setTimeout(() => {
+    document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in'));
+  }, 2000);
 
   // ---------- easter egg: type "git show" anywhere ----------
   let buf = '';
