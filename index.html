@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b0c0c" />
-<meta name="description" content="git show. O evento anual do DATI da UNIVATES que premia os melhores projetos pessoais e acadêmicos dos alunos do curso." />
+<meta name="description" content="git show. Iniciativa do DATI da UNIVATES que premia os melhores projetos pessoais e acadêmicos dos alunos de Engenharia de Software e Engenharia da Computação. Demo Day 02/07/2026 na Arena do Tecnovates." />
 <meta property="og:title" content="git show · Mostra o que tu commitou" />
 <meta property="og:description" content="Submete o link do teu repo. A banca avalia. Os melhores vão pro Demo Day." />
 <meta property="og:type" content="website" />
@@ -626,50 +626,120 @@ section.scene {
   font-size: 0.92rem;
 }
 
-/* criteria table */
-.criteria {
-  width: 100%;
-  border-collapse: collapse;
+/* ============= CRITERIA CARDS ============= */
+.crits {
+  display: grid;
+  gap: 1.25rem;
   margin: 1.5rem 0;
-  font-size: 0.95rem;
+}
+.crit-card {
+  background: var(--bg-1);
   border: 1px solid var(--line);
+  border-left: 3px solid var(--hash);
+  padding: 1.25rem 1.5rem;
+  transition: border-left-color 0.2s ease, transform 0.2s ease;
 }
-.criteria th, .criteria td {
-  text-align: left;
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--line);
-  vertical-align: top;
+.crit-card:hover {
+  border-left-color: var(--head);
+  transform: translateX(2px);
 }
-.criteria th {
-  background: var(--bg-2);
-  font-weight: 700;
+.crit-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.1rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+.crit-pct {
+  font-size: 2.2rem;
+  font-weight: 800;
   color: var(--head);
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
-}
-.criteria tr:last-child td { border-bottom: none; }
-.criteria tr:hover td { background: var(--bg-1); }
-.criteria .crit-name { color: var(--fg); font-weight: 700; }
-.criteria .crit-weight {
-  font-weight: 700;
-  color: var(--head);
+  letter-spacing: -0.04em;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
-.criteria .crit-bar {
-  height: 4px;
-  background: var(--bg-3);
-  margin-top: 0.5rem;
+.crit-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--fg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.crit-q {
+  color: var(--fg-1);
+  margin: 0 0 1rem;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.crit-examples {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+.examples-good, .examples-bad {
+  background: var(--bg);
+  padding: 0.75rem 0.85rem;
+  border-left: 2px solid;
+}
+.examples-good { border-left-color: var(--add); }
+.examples-bad { border-left-color: var(--rem); }
+.examples-good .ex-label, .examples-bad .ex-label {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.examples-good .ex-label { color: var(--add); }
+.examples-bad .ex-label { color: var(--rem); }
+.examples-good ul, .examples-bad ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.examples-good li, .examples-bad li {
   position: relative;
-  overflow: hidden;
+  padding: 0.22rem 0 0.22rem 1.1rem;
+  font-size: 0.88rem;
+  color: var(--fg-1);
+  line-height: 1.5;
 }
-.criteria .crit-bar::before {
-  content: "";
+.examples-good li::before, .examples-bad li::before {
   position: absolute;
-  inset: 0;
-  width: var(--w, 0%);
-  background: linear-gradient(90deg, var(--head), var(--hash));
-  box-shadow: 0 0 8px var(--head-glow);
+  left: 0;
+  font-weight: 700;
+}
+.examples-good li::before { content: "+"; color: var(--add); }
+.examples-bad li::before { content: "−"; color: var(--rem); }
+
+/* ============= README CTA ============= */
+.readme-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--head);
+  padding: 1.25rem 1.5rem;
+  margin: 1.75rem 0;
+  flex-wrap: wrap;
+}
+.readme-cta-text {
+  flex: 1 1 280px;
+}
+.readme-cta-text h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  color: var(--head);
+  font-weight: 700;
+}
+.readme-cta-text p {
+  margin: 0;
+  color: var(--fg-1);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 /* prizes */
@@ -882,8 +952,11 @@ section.scene {
   .commit-header .commit-msg { font-size: 1.5rem; }
   .workflow .step { grid-template-columns: 2.5rem 1fr; gap: 0.6rem; padding: 0.85rem; }
   .workflow .step .num { font-size: 1.4rem; }
-  .criteria { font-size: 0.85rem; }
-  .criteria th, .criteria td { padding: 0.6rem 0.5rem; }
+  .crit-examples { grid-template-columns: 1fr; }
+  .crit-card { padding: 1rem 1.1rem; }
+  .crit-pct { font-size: 1.8rem; }
+  .readme-cta { padding: 1rem 1.1rem; gap: 1rem; }
+  .readme-cta .btn { width: 100%; justify-content: center; }
   .timeline .row { grid-template-columns: 1.5rem 1fr; }
   .timeline .row .date { grid-column: 2; justify-self: start; }
   .bar-bottom { font-size: 10.5px; grid-template-columns: auto 1fr; }
@@ -925,9 +998,9 @@ section.scene {
      ========================================================= -->
 <div class="bar-top" role="banner" aria-label="terminal status">
   <span><span class="prompt-host">dati@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git show v1.0.0</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
-  <span class="center">[ regulamento.md · 1ª edição · 2026 ]</span>
+  <span class="center">[ regulamento.md · Demo Day 02/07/2026 · Arena do Tecnovates ]</span>
   <span class="right">
-    <span class="pill"><span class="dot"></span><span class="label">submissões em breve</span></span>
+    <span class="pill"><span class="dot"></span><span class="label">submissões 01/06 &rarr; 20/06</span></span>
   </span>
 </div>
 
@@ -939,12 +1012,12 @@ section.scene {
   <section class="hero" id="hero">
     <div class="hero-prompt"><span class="glyph">$</span> cat <span class="path">README.md</span></div>
     <h1 class="hero-title"><span class="gt">&gt;</span> git show<span class="cursor" aria-hidden="true"></span></h1>
-    <p class="hero-sub">Mostra o que tu <span class="commit-emph">commitou</span>. O evento que coloca os projetos dos alunos de TI da UNIVATES na vitrine.</p>
+    <p class="hero-sub">Mostra o que tu <span class="commit-emph">commitou</span>. A vitrine dos projetos dos alunos de Engenharia de Software e Engenharia da Computação da UNIVATES.</p>
 
     <div class="hero-meta">
       <span class="kv"><span class="label">edição</span><strong>1ª · <span class="var">2026</span></strong></span>
       <span class="kv"><span class="label">realização</span><strong>DATI · UNIVATES</strong></span>
-      <span class="kv"><span class="label">status</span><strong style="color: var(--head);">submissões em breve</strong></span>
+      <span class="kv"><span class="label">demo day</span><strong style="color: var(--head);">02/07 · Arena do Tecnovates</strong></span>
     </div>
 
     <div class="hero-cta">
@@ -982,7 +1055,7 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit a3f2c1b</span>
       <span class="commit-author">Author: DATI &lt;da.ti@univates.br&gt;</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> O que é o <code style="font-size:0.85em">git show</code></h2>
     </header>
 
@@ -991,12 +1064,10 @@ section.scene {
 
     <div class="hunk">
       <div class="hunk-header">@@ -0,0 +1,42 @@ tl;dr</div>
-      <div class="line add"><span class="mark">+</span><span class="code"><strong>git show</strong> é o evento anual do DATI da UNIVATES.</span></div>
-      <div class="line add"><span class="mark">+</span><span class="code">Premia os melhores projetos pessoais e acadêmicos dos alunos do curso.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">A ideia é simples:</span></div>
-      <div class="line"><span class="mark"></span><span class="code">você já tem um repositório legal no seu GitHub.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">Um projeto pessoal, um trabalho de aula que ficou bom,</span></div>
-      <div class="line"><span class="mark"></span><span class="code">uma ideia maluca que programou num fim de semana.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code"><strong>git show</strong> é uma iniciativa do Diretório Acadêmico de Tecnologia da Informação (DATI) da UNIVATES.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Premia os melhores projetos pessoais e acadêmicos dos alunos dos cursos de Engenharia de Software e Engenharia da Computação.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">A ideia é simples: você já tem um repositório legal no seu GitHub.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">Um projeto pessoal, um trabalho de aula que ficou bom, ou uma ideia maluca que programou num fim de semana.</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Você <strong>submete o link</strong>.</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Uma banca (professores e empresas apoiadoras) avalia.</span></div>
       <div class="line add"><span class="mark">+</span><span class="code">Os melhores vão pro <strong>Demo Day</strong>.</span></div>
@@ -1008,7 +1079,7 @@ section.scene {
     <div class="callout">
       <span class="lead">man git-show</span>
       O comando <code>git show</code> no terminal mostra o conteúdo de um commit.<br/>
-      No evento, ele mostra o que os alunos de TI da UNIVATES estão <strong>construindo</strong>.
+      No evento, ele mostra o que os alunos de Engenharia de Software e Engenharia da Computação da UNIVATES estão <strong>construindo</strong>.
     </div>
   </section>
 
@@ -1019,12 +1090,12 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 7d4e9a1</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Por que existe</h2>
     </header>
 
     <div class="prose">
-      <p>Existe muito código bom sendo escrito por aluno de TI da UNIVATES que <em>nunca sai do localhost</em>. Projeto pessoal que ninguém vê, trabalho de aula que termina na nota e some, ideia que ficou parada no meio.</p>
+      <p>Existe muito código bom sendo escrito por aluno de Engenharia de Software e Engenharia da Computação da UNIVATES que <em>nunca sai do localhost</em>. Projeto pessoal que ninguém vê, trabalho de aula que termina na nota e some, ideia que ficou parada no meio.</p>
       <p>O <code>git show</code> é um empurrão estruturado: dá motivo pra <strong>terminar</strong>, <strong>expor</strong>, <strong>receber feedback</strong> de gente que trabalha na área, e ter o trabalho reconhecido publicamente.</p>
       <p>Pra quem participa, é portfólio. Pra quem vence, é troféu, badge no README e visibilidade direta com as empresas que apoiam o curso. Pra UNIVATES, é mais uma forma de mostrar que <em>o pessoal daqui constrói coisa</em>.</p>
     </div>
@@ -1037,7 +1108,7 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit b1c2d3e</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Como funciona</h2>
     </header>
 
@@ -1046,35 +1117,35 @@ section.scene {
         <div class="num">01</div>
         <div class="body">
           <strong>git push --submeter</strong>
-          <span>Submeta o link do seu repositório público pelo formulário oficial.</span>
+          <span>Entre 01/06 e 20/06 você submete o link do seu repositório público pelo formulário oficial.</span>
         </div>
       </div>
       <div class="step">
         <div class="num">02</div>
         <div class="body">
           <strong>Triagem técnica</strong>
-          <span>Comissão do DATI + professores valida regras mínimas e qualidade básica.</span>
+          <span>Até 22/06, a comissão do DATI valida o regulamento mínimo. Quem não cumpre é descartado nessa fase.</span>
         </div>
       </div>
       <div class="step">
         <div class="num">03</div>
         <div class="body">
           <strong>Avaliação dos finalistas</strong>
-          <span>Banca completa (professores + representantes dos apoiadores) avalia com base nos critérios públicos.</span>
+          <span>A banca completa (professores e representantes dos parceiros) avalia os repositórios aprovados com base nos critérios públicos.</span>
         </div>
       </div>
       <div class="step">
         <div class="num">04</div>
         <div class="body">
           <strong>Top Commits <svg class="icon" viewBox="0 0 16 16" aria-hidden="true" style="margin-left:0.25em;"><path d="M1.5 1.5h6l7 7-6 6-7-7v-6z"/><circle cx="4.5" cy="4.5" r="0.9" fill="currentColor" stroke="none"/></svg></strong>
-          <span>Os finalistas são anunciados publicamente.</span>
+          <span>Até 27/06 os finalistas são anunciados publicamente nos canais do DATI.</span>
         </div>
       </div>
       <div class="step">
         <div class="num">05</div>
         <div class="body">
           <strong>Demo Day presencial</strong>
-          <span>Cada finalista apresenta ao vivo seu projeto.</span>
+          <span>02/07/2026 na Arena do Tecnovates. Cada finalista apresenta ao vivo seu projeto.</span>
         </div>
       </div>
       <div class="step">
@@ -1094,27 +1165,27 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit f5a8b2c</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Regras de submissão</h2>
     </header>
 
     <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/quem-pode.md</span></div>
     <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Quem pode participar</h3>
     <ul class="list-add">
-      <li>Alunos regularmente matriculados em <strong>qualquer curso de TI da UNIVATES</strong> (ADS, Ciência da Computação, Engenharia de Software, Sistemas de Informação ou afins) no semestre do evento.</li>
-      <li><strong>Individual ou em grupo.</strong> Em caso de grupo, todos os membros precisam ser alunos da UNIVATES.</li>
-      <li>Cada aluno pode submeter <strong>no máximo 2 projetos</strong>.</li>
+      <li>Alunos regularmente matriculados nos cursos de <strong>Engenharia de Software</strong> ou <strong>Engenharia da Computação</strong> da UNIVATES no semestre do evento.</li>
+      <li><strong>Individual ou em grupo.</strong> Em caso de grupo, todos os integrantes precisam ser alunos da UNIVATES nos cursos elegíveis.</li>
+      <li>Cada aluno pode submeter <strong>1 projeto pessoal</strong>. Se um deles for em grupo, pode somar mais um, totalizando <strong>até 2 projetos por aluno</strong> (1 pessoal + 1 em grupo).</li>
     </ul>
 
     <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/repositorio.md</span></div>
     <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Sobre o repositório</h3>
     <ul class="list-add">
-      <li>Deve ser <strong>público</strong> e acessível sem login.</li>
-      <li>Hospedado em GitHub, GitLab, Bitbucket ou plataforma equivalente.</li>
-      <li>Criado <strong>há pelo menos 30 dias</strong> antes da submissão (verificado pela data de criação do repositório).</li>
-      <li><strong>Pelo menos 10 commits</strong>, em <strong>ao menos 5 datas distintas</strong>. Não vale o "init dump". A banca quer ver evolução.</li>
-      <li>Precisa ter um <code>README.md</code> com: nome + descrição curta, stack/tecnologias, instruções de execução local, e ao menos 1 screenshot/GIF/link online.</li>
-      <li>Código <strong>majoritariamente autoral</strong>. Uso de libs, frameworks, snippets e ferramentas de IA é esperado, mas não pode ser fork cosmético nem resultado de um único prompt copiado.</li>
+      <li>Hospedado obrigatoriamente no <strong>GitHub</strong>.</li>
+      <li>Deve estar <strong>público</strong> durante toda a submissão e até a final do evento (02/07/2026). Pode voltar a ser privado depois, se preferir.</li>
+      <li>Criado <strong>há pelo menos 30 dias</strong> antes da submissão, verificado pela data de criação do repositório.</li>
+      <li><strong>Pelo menos 10 commits</strong> em <strong>ao menos 5 datas distintas</strong>. Não vale o "init dump", a banca quer ver evolução.</li>
+      <li>Precisa ter um <code>README.md</code> com: nome do projeto, descrição curta, stack/tecnologias, instruções de execução local, e ao menos 1 screenshot, GIF ou link de versão online. <a href="#pitch">Tem template pronto na seção sobre README</a>.</li>
+      <li>Código <strong>majoritariamente autoral</strong>. Uso de bibliotecas, frameworks, snippets e ferramentas de IA é esperado, mas não pode ser fork cosmético nem resultado de um único prompt copiado.</li>
     </ul>
 
     <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/aceitos.md</span></div>
@@ -1131,7 +1202,6 @@ section.scene {
     <div class="diff-file" style="margin-top:1.5rem"><span class="a">--- a/regras/nao-entra.md</span></div>
     <h3 style="font-size:1.1rem;color:var(--rem);margin:0.5rem 0;">## O que não entra</h3>
     <ul class="list-rem">
-      <li>Repositórios privados, ou que viraram públicos só para a submissão.</li>
       <li>Tutoriais seguidos passo a passo sem contribuição original significativa.</li>
       <li>Forks com mudanças mínimas.</li>
       <li>Projetos que violem direitos autorais, termos de uso de plataformas ou ética acadêmica.</li>
@@ -1145,30 +1215,37 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 2e6f0d4</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> O pitch é o README</h2>
     </header>
 
     <div class="callout" style="border-left-color: var(--hash); background: linear-gradient(90deg, var(--hash-dim), transparent);">
       <span class="lead" style="color: var(--hash);">manifesto</span>
-      No <code>git show</code>, <strong style="color: var(--hash);">o README é o seu pitch</strong>.
-      A banca lê o repositório como se fosse um produto de verdade.
-      <br/><br/>
-      Não precisa gravar vídeo. Não precisa enviar slides. Não precisa preencher formulário longo.<br/>
-      Capricha no README, deixa o código limpo, e pronto.
+      No <code>git show</code>, <strong style="color: var(--hash);">o README é o seu pitch</strong>. A banca lê o repositório como se fosse um produto de verdade. Não precisa gravar vídeo, enviar slides ou preencher formulário longo. Capricha no README, deixa o código limpo, e pronto.
     </div>
 
     <div class="prose">
-      <p>Um README forte responde rapidamente:</p>
+      <p>Um README forte responde rapidamente cinco perguntas. Cada uma vira uma seção curta no seu <code>README.md</code>:</p>
     </div>
 
     <ul class="list-add">
-      <li><strong>O que é isso?</strong></li>
-      <li><strong>Por que existe?</strong></li>
-      <li><strong>Como funciona?</strong></li>
-      <li><strong>Como eu rodo?</strong></li>
-      <li><strong>O que vem por aí?</strong></li>
+      <li><strong>O que é isso?</strong> Uma frase ou parágrafo curto definindo o projeto. Imagina que o leitor tem 30 segundos pra decidir se continua lendo.</li>
+      <li><strong>Por que existe?</strong> Qual problema ele resolve, mesmo que pequeno. Pra quem é. Por que você se importou de fazer.</li>
+      <li><strong>Como funciona?</strong> Visão geral técnica: stack, arquitetura, decisões principais. Não precisa virar artigo, um parágrafo já entrega.</li>
+      <li><strong>Como eu rodo?</strong> Pré-requisitos, comandos pra clonar e subir, e link da versão online se existir.</li>
+      <li><strong>O que vem por aí?</strong> Próximos passos, limitações conhecidas, o que você faria diferente se recomeçasse.</li>
     </ul>
+
+    <div class="readme-cta">
+      <div class="readme-cta-text">
+        <h3>Template pronto pra usar</h3>
+        <p>Baixa esse <code>README.md</code> de exemplo, preenche com os dados do teu projeto e sobe no repo. Já vem com as cinco seções organizadas e os campos pra screenshot, stack e instruções.</p>
+      </div>
+      <a href="README-template.md" download class="btn primary">
+        <svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v9"/><path d="M4.5 7l3.5 3.5L11.5 7"/><path d="M2 13.5h12"/></svg>
+        download README-template.md
+      </a>
+    </div>
 
     <div class="prose">
       <p>Quem chega à final apresenta ao vivo no Demo Day. Aí sim: com slide, demo rolando ao vivo, do jeito que preferir.</p>
@@ -1182,42 +1259,157 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 8c4b7a9</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Critérios de avaliação</h2>
     </header>
 
-    <table class="criteria" aria-label="Critérios e pesos">
-      <thead>
-        <tr><th>Critério</th><th>Peso</th><th>O que a banca olha</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="crit-name">Originalidade e criatividade<div class="crit-bar" style="--w:20%"></div></td>
-          <td class="crit-weight">20%</td>
-          <td>A ideia traz algo novo, inesperado ou bem-resolvido?</td>
-        </tr>
-        <tr>
-          <td class="crit-name">Utilidade e impacto<div class="crit-bar" style="--w:25%"></div></td>
-          <td class="crit-weight">25%</td>
-          <td>Resolve um problema real, mesmo que pequeno?</td>
-        </tr>
-        <tr>
-          <td class="crit-name">Qualidade técnica<div class="crit-bar" style="--w:20%"></div></td>
-          <td class="crit-weight">20%</td>
-          <td>Arquitetura, boas práticas, escolhas coerentes de stack.</td>
-        </tr>
-        <tr>
-          <td class="crit-name">Documentação<div class="crit-bar" style="--w:15%"></div></td>
-          <td class="crit-weight">15%</td>
-          <td>README, instruções, decisões técnicas explicadas.</td>
-        </tr>
-        <tr>
-          <td class="crit-name">Pitch no Demo Day<div class="crit-bar" style="--w:20%"></div></td>
-          <td class="crit-weight">20%</td>
-          <td>Clareza, domínio do projeto, apresentação ao vivo.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="prose">
+      <p>São 5 critérios, somando 100%. Para cada um, listamos o que pontua a favor e o que pesa contra. Quanto mais o seu projeto se parece com a coluna verde, melhor.</p>
+    </div>
+
+    <div class="crits">
+
+      <article class="crit-card">
+        <header class="crit-head">
+          <span class="crit-pct">20%</span>
+          <h3>Originalidade e criatividade</h3>
+        </header>
+        <p class="crit-q">A ideia traz algo novo, inesperado ou bem-resolvido?</p>
+        <div class="crit-examples">
+          <div class="examples-good">
+            <span class="ex-label">o que pontua</span>
+            <ul>
+              <li>Ideias com twist próprio: uma ferramenta familiar com um diferencial real</li>
+              <li>Aborda um problema pouco explorado ou um nicho específico</li>
+              <li>Solução criativa para uma dor pequena do dia a dia</li>
+              <li>Abordagem técnica fora do óbvio (escolha incomum de stack, algoritmo, formato)</li>
+            </ul>
+          </div>
+          <div class="examples-bad">
+            <span class="ex-label">o que pesa contra</span>
+            <ul>
+              <li>Clone óbvio de um produto existente, sem diferencial</li>
+              <li>Tutorial seguido passo a passo</li>
+              <li>To-do list, blog ou e-commerce genérico sem propósito</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="crit-card">
+        <header class="crit-head">
+          <span class="crit-pct">25%</span>
+          <h3>Utilidade e impacto</h3>
+        </header>
+        <p class="crit-q">Resolve um problema real, mesmo que pequeno?</p>
+        <div class="crit-examples">
+          <div class="examples-good">
+            <span class="ex-label">o que pontua</span>
+            <ul>
+              <li>Resolve uma dor sua, da sua família, dos colegas, da turma ou da UNIVATES</li>
+              <li>Automação que economiza tempo real para alguém</li>
+              <li>Ferramenta que outras pessoas usam (estrelas, forks, contribuições, feedback)</li>
+              <li>Aplica-se a contexto local: Vale do Taquari, comércio, ensino, agricultura</li>
+            </ul>
+          </div>
+          <div class="examples-bad">
+            <span class="ex-label">o que pesa contra</span>
+            <ul>
+              <li>App sem caso de uso claro</li>
+              <li>Demo bonita mas sem público definido</li>
+              <li>Reinvenção de algo que já existe e funciona bem, sem motivo</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="crit-card">
+        <header class="crit-head">
+          <span class="crit-pct">20%</span>
+          <h3>Qualidade técnica</h3>
+        </header>
+        <p class="crit-q">O código mostra que houve cuidado, arquitetura e boas escolhas?</p>
+        <div class="crit-examples">
+          <div class="examples-good">
+            <span class="ex-label">o que pontua</span>
+            <ul>
+              <li>Estrutura organizada, com separação de responsabilidades</li>
+              <li>Testes onde fazem sentido (pelo menos no que é crítico)</li>
+              <li>Boas práticas da linguagem e do framework escolhidos</li>
+              <li>Decisões justificadas no README ou nos commits</li>
+              <li>Tratamento de erros, validações, casos de borda considerados</li>
+            </ul>
+          </div>
+          <div class="examples-bad">
+            <span class="ex-label">o que pesa contra</span>
+            <ul>
+              <li>Tudo num arquivo só, sem estrutura</li>
+              <li>Mistura de estilos sem padrão (code style, naming)</li>
+              <li>Código colado de várias fontes sem entender o que faz</li>
+              <li>Bugs óbvios deixados em aberto</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="crit-card">
+        <header class="crit-head">
+          <span class="crit-pct">15%</span>
+          <h3>Documentação</h3>
+        </header>
+        <p class="crit-q">Alguém que abre o repo pela primeira vez consegue entender e rodar?</p>
+        <div class="crit-examples">
+          <div class="examples-good">
+            <span class="ex-label">o que pontua</span>
+            <ul>
+              <li>README com contexto, stack, como rodar e demonstração visual</li>
+              <li>Screenshots, GIFs animados ou link de versão online</li>
+              <li>Decisões técnicas explicadas (por que escolheu X, o que aprendeu)</li>
+              <li>Commits descritivos, não só "update" e "fix"</li>
+              <li>Comentários no código onde realmente ajudam</li>
+            </ul>
+          </div>
+          <div class="examples-bad">
+            <span class="ex-label">o que pesa contra</span>
+            <ul>
+              <li>README só com o título e nada mais</li>
+              <li>Sem instruções de como rodar localmente</li>
+              <li>Nenhuma demonstração visual nem link online</li>
+              <li>Comentários genéricos, redundantes ("// função X")</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="crit-card">
+        <header class="crit-head">
+          <span class="crit-pct">20%</span>
+          <h3>Pitch no Demo Day</h3>
+        </header>
+        <p class="crit-q">Você consegue mostrar o projeto ao vivo, com clareza e domínio?</p>
+        <div class="crit-examples">
+          <div class="examples-good">
+            <span class="ex-label">o que pontua</span>
+            <ul>
+              <li>Demo ao vivo funcionando, com o produto rodando na tela</li>
+              <li>Sabe explicar trechos do código se a banca perguntar</li>
+              <li>Conta a história do problema e da solução com clareza</li>
+              <li>Respeita o tempo, vai direto ao ponto, sem encher linguiça</li>
+            </ul>
+          </div>
+          <div class="examples-bad">
+            <span class="ex-label">o que pesa contra</span>
+            <ul>
+              <li>Ler slides em vez de mostrar o produto</li>
+              <li>Não saber explicar partes do próprio código</li>
+              <li>Apresentação sem foco, dispersa</li>
+              <li>Nenhuma demonstração, só fala</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+    </div>
 
     <div class="prose" style="font-size:0.92rem;color:var(--fg-2);">
       <p>Na fase de <strong>triagem</strong>, o critério "Pitch" não é considerado. A banca avalia somente pelo repositório. O peso do pitch só entra na <strong>final</strong>.</p>
@@ -1231,7 +1423,7 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 1a2b3c4</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Titulação e premiação</h2>
     </header>
 
@@ -1270,16 +1462,16 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 9d8e7f6</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Calendário</h2>
     </header>
 
     <div class="timeline">
-      <div class="row"><span class="glyph">●</span><span class="stage">Abertura das submissões</span><span class="date">{{data}}</span></div>
-      <div class="row"><span class="glyph">●</span><span class="stage">Encerramento das submissões</span><span class="date">{{data}}</span></div>
-      <div class="row"><span class="glyph">●</span><span class="stage">Triagem técnica</span><span class="date">{{data}} → {{data}}</span></div>
-      <div class="row"><span class="glyph">●</span><span class="stage">Anúncio dos finalistas (Top Commits)</span><span class="date">{{data}}</span></div>
-      <div class="row major"><span class="glyph">★</span><span class="stage">Demo Day presencial</span><span class="date">{{data}}</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Abertura das submissões</span><span class="date">01/06/2026</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Encerramento das submissões</span><span class="date">20/06/2026</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Triagem técnica (descarte por não cumprir o regulamento)</span><span class="date">até 22/06</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Anúncio dos finalistas (Top Commits)</span><span class="date">até 27/06</span></div>
+      <div class="row major"><span class="glyph">★</span><span class="stage">Demo Day presencial · Arena do Tecnovates</span><span class="date">02/07/2026</span></div>
       <div class="row"><span class="glyph">●</span><span class="stage">Entrega oficial do troféu HEAD</span><span class="date">Demo Day</span></div>
     </div>
   </section>
@@ -1291,7 +1483,7 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 5b4c3d2</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> A banca</h2>
     </header>
 
@@ -1302,7 +1494,7 @@ section.scene {
     <div class="contrib">
       <div class="card">
         <div class="role">CODEOWNERS</div>
-        <h4>Professores do curso de TI</h4>
+        <h4>Professores dos cursos elegíveis</h4>
         <p>Indicados pela coordenação. Peso individual igual.</p>
       </div>
       <div class="card">
@@ -1355,22 +1547,17 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 6d5c4b3</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Disposições finais</h2>
     </header>
 
     <div class="diff-file"><span class="b">+++ b/LICENSE</span></div>
     <div class="hunk">
       <div class="hunk-header">@@ disposições gerais @@</div>
-      <div class="line"><span class="mark"></span><span class="code">O DATI da UNIVATES reserva-se o direito de fazer ajustes pequenos</span></div>
-      <div class="line"><span class="mark"></span><span class="code">neste regulamento até a abertura oficial das submissões.</span></div>
-      <div class="line"><span class="mark"></span><span class="code">Após a abertura, eventuais mudanças só ocorrem por motivo de</span></div>
-      <div class="line"><span class="mark"></span><span class="code">força maior e com aviso prévio a todos os inscritos.</span></div>
-      <div class="line para"><span class="mark"></span><span class="code">Casos omissos serão resolvidos pela diretoria do DATI em</span></div>
-      <div class="line"><span class="mark"></span><span class="code">conjunto com a coordenação do curso.</span></div>
-      <div class="line para"><span class="mark"></span><span class="code">A participação no <code>git show</code> implica concordância com este</span></div>
-      <div class="line"><span class="mark"></span><span class="code">regulamento e autorização para uso de nome, foto e descrição</span></div>
-      <div class="line"><span class="mark"></span><span class="code">do projeto em material institucional do evento e do DATI.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">O DATI da UNIVATES reserva-se o direito de fazer ajustes pequenos neste regulamento até a abertura oficial das submissões.</span></div>
+      <div class="line para"><span class="mark"></span><span class="code">Após a abertura, eventuais mudanças só ocorrem por motivo de força maior e com aviso prévio a todos os inscritos.</span></div>
+      <div class="line para"><span class="mark"></span><span class="code">Casos omissos serão resolvidos pela diretoria do DATI em conjunto com a coordenação dos cursos elegíveis.</span></div>
+      <div class="line para"><span class="mark"></span><span class="code">A participação no <code>git show</code> implica concordância com este regulamento e autorização para uso de nome, foto e descrição do projeto em material institucional do evento e do DATI.</span></div>
     </div>
   </section>
 
@@ -1381,7 +1568,7 @@ section.scene {
     <header class="commit-header">
       <span class="commit-sha">commit 0a1b2c3</span>
       <span class="commit-author">Author: DATI</span>
-      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;01/06/2026</span>
       <h2 class="commit-msg"><span class="arrow">▸</span> Contato</h2>
     </header>
 
@@ -1467,7 +1654,7 @@ section.scene {
   const whereName = document.getElementById('where-section');
   const whereSha  = document.getElementById('where-sha');
 
-  // Reveal observer: permissive — fires as soon as any sliver of the
+  // Reveal observer: permissive, fires as soon as any sliver of the
   // section enters the viewport, so tall sections (regras, etc.)
   // always trigger. Unobserve after firing so animation runs once.
   const revealIO = new IntersectionObserver(entries => {
