@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0c0c" />
+<meta name="description" content="git show — o evento anual do DA de TI da UNIVATES que premia os melhores projetos pessoais e acadêmicos dos alunos do curso." />
+<meta property="og:title" content="git show — Mostra o que tu commitou" />
+<meta property="og:description" content="Submete o link do teu repo. A banca avalia. Os melhores vão pro Demo Day." />
+<meta property="og:type" content="website" />
+<title>git show — DA de TI · UNIVATES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0c0c'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='%2379f2c5'%3E%3E_%3C/text%3E%3C/svg%3E" />
+
+<style>
+/* =========================================================
+   git show — disruptive, terminal-native design system
+   No conventional CSS. Mono everywhere. Diff as language.
+   ========================================================= */
+
+:root {
+  /* warm phosphor near-black */
+  --bg: #0b0c0c;
+  --bg-1: #101213;
+  --bg-2: #15181a;
+  --bg-3: #1c2024;
+  --line: #232830;
+  --line-strong: #2f3540;
+
+  /* warm cream */
+  --fg: #ece6d5;
+  --fg-1: #c5c0b1;
+  --fg-2: #8e8a7e;
+  --fg-3: #585548;
+
+  /* diff colors — the alphabet of this language */
+  --add: #4ec264;
+  --add-bg: rgba(78, 194, 100, 0.08);
+  --add-bg-strong: rgba(78, 194, 100, 0.16);
+  --rem: #ff5d5d;
+  --rem-bg: rgba(255, 93, 93, 0.08);
+  --rem-bg-strong: rgba(255, 93, 93, 0.16);
+
+  /* hash amber */
+  --hash: #f0b95e;
+  --hash-dim: rgba(240, 185, 94, 0.18);
+
+  /* HEAD — the single highlight color of the whole site */
+  --head: #79f2c5;
+  --head-dim: rgba(121, 242, 197, 0.12);
+  --head-glow: rgba(121, 242, 197, 0.35);
+
+  /* link */
+  --link: #82b9ff;
+
+  /* spacing scale */
+  --gut: clamp(1rem, 2.5vw, 2rem);
+  --col-max: 78ch;
+
+  /* type */
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: "calt" 1, "liga" 1, "zero" 1, "ss01" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--line-strong) var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(121, 242, 197, 0.04), transparent 40%),
+    radial-gradient(circle at 90% 30%, rgba(240, 185, 94, 0.025), transparent 50%),
+    var(--bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* subtle CRT scanlines + grain — barely perceptible */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.012) 0px,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: overlay;
+  opacity: 0.6;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.9  0 0 0 0 0.85  0 0 0 0.03 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.35;
+}
+
+::selection { background: var(--head); color: var(--bg); }
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+  transition: color .15s ease, background .15s ease;
+}
+a:hover { color: var(--head); background: var(--head-dim); }
+
+/* ============= INLINE SVG ICONS ============= */
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.14em;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  flex-shrink: 0;
+}
+.icon.lead { margin-right: 0.5em; }
+.icon.trail { margin-left: 0.4em; }
+
+/* ============= TOP STATUS BAR — tmux-style ============= */
+.bar-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .75rem;
+  padding: .55rem clamp(.75rem, 2vw, 1.5rem);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+.bar-top .prompt-host { color: var(--head); }
+.bar-top .prompt-host::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--head); box-shadow: 0 0 8px var(--head-glow); margin-right: .5rem; vertical-align: 0; }
+.bar-top .prompt-path { color: var(--hash); }
+.bar-top .prompt-cmd { color: var(--fg-1); }
+.bar-top .prompt-cmd .blink { color: var(--head); animation: blink 1.05s steps(2) infinite; }
+.bar-top .center { color: var(--fg-2); text-align: center; }
+.bar-top .right { color: var(--fg-2); display: flex; gap: 1rem; align-items: center; }
+.bar-top .right .pill {
+  border: 1px solid var(--line-strong);
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  color: var(--fg-1);
+}
+.bar-top .right .pill .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--add); margin-right: .35rem; vertical-align: 1px; box-shadow: 0 0 6px var(--add); }
+
+@keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+/* ============= LAYOUT ============= */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 3rem) 8rem;
+  position: relative;
+}
+
+/* ============= HERO ============= */
+.hero {
+  position: relative;
+  padding: clamp(2rem, 8vw, 6rem) 0 clamp(3rem, 10vw, 7rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-prompt {
+  color: var(--fg-2);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+.hero-prompt .glyph { color: var(--head); }
+.hero-prompt .path { color: var(--hash); }
+
+.hero-title {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: clamp(3.5rem, 16vw, 12rem);
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  margin: 0;
+  color: var(--fg);
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-title .gt {
+  color: var(--head);
+  text-shadow: 0 0 24px var(--head-glow);
+}
+.hero-title .cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.85em;
+  background: var(--head);
+  vertical-align: -0.05em;
+  margin-left: 0.12em;
+  animation: blink 1.05s steps(2) infinite;
+  box-shadow: 0 0 18px var(--head-glow);
+}
+
+.hero-sub {
+  margin-top: clamp(1rem, 3vw, 2rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.6rem);
+  line-height: 1.35;
+  color: var(--fg-1);
+  max-width: 38ch;
+}
+.hero-sub .commit-emph {
+  color: var(--add);
+  background: var(--add-bg);
+  padding: 0 0.25em;
+}
+
+.hero-meta {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  font-size: 12px;
+  color: var(--fg-2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.hero-meta .kv strong {
+  color: var(--fg);
+  font-weight: 700;
+  margin-left: 0.5rem;
+  letter-spacing: 0.04em;
+}
+.hero-meta .kv .var {
+  color: var(--hash);
+  background: var(--hash-dim);
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+}
+
+.hero-cta {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--line-strong);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none;
+  border-radius: 0;
+}
+.btn:hover {
+  background: var(--head-dim);
+  border-color: var(--head);
+  color: var(--head);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--line-strong);
+}
+.btn.primary {
+  background: var(--head);
+  color: var(--bg);
+  border-color: var(--head);
+  font-weight: 700;
+}
+.btn.primary:hover {
+  background: var(--head);
+  color: var(--bg);
+  box-shadow: 4px 4px 0 var(--bg-3);
+}
+.btn .arrow { font-weight: 700; }
+
+/* ============= GIT LOG NAV ============= */
+.nav-log {
+  margin: clamp(3rem, 6vw, 5rem) 0;
+  padding: 1.25rem 0;
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+  font-size: 12px;
+  color: var(--fg-2);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.nav-log .label {
+  color: var(--fg-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-top: 0.2em;
+  white-space: nowrap;
+}
+.nav-log ol {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+.nav-log li a {
+  color: var(--fg-1);
+  border: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.nav-log li a .sha {
+  color: var(--hash);
+  font-size: 11px;
+}
+.nav-log li a:hover {
+  background: transparent;
+  color: var(--head);
+}
+.nav-log li a:hover .sha { color: var(--head); }
+
+/* ============= SECTION SHELL ============= */
+section.scene {
+  position: relative;
+  margin: clamp(4rem, 8vw, 7rem) 0;
+  scroll-margin-top: 80px;
+}
+
+.commit-header {
+  border-left: 3px solid var(--hash);
+  padding: 0.4rem 0 0.4rem 1rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1rem;
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.commit-header .commit-sha { color: var(--hash); font-weight: 700; }
+.commit-header .commit-author { color: var(--fg-1); }
+.commit-header .commit-date { color: var(--fg-3); }
+.commit-header .commit-msg {
+  grid-column: 1 / -1;
+  margin-top: 0.4rem;
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.commit-header .commit-msg .arrow {
+  color: var(--head);
+  margin-right: 0.4rem;
+}
+
+.diff-file {
+  font-size: 11.5px;
+  color: var(--fg-3);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+.diff-file .a { color: var(--rem); }
+.diff-file .b { color: var(--add); }
+.hunk {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  font-size: 14px;
+  margin-bottom: 1.25rem;
+}
+.hunk-header {
+  color: var(--link);
+  font-size: 12px;
+  padding: 0 0 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0.5rem;
+}
+.hunk .line {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: baseline;
+  padding: 0.1rem 0;
+}
+.hunk .line .mark {
+  text-align: center;
+  color: var(--fg-3);
+  user-select: none;
+}
+.hunk .line.add { background: var(--add-bg); }
+.hunk .line.add .mark { color: var(--add); }
+.hunk .line.rem { background: var(--rem-bg); }
+.hunk .line.rem .mark { color: var(--rem); }
+.hunk .line .code { padding-right: 0.5rem; }
+
+/* prose inside scenes */
+.prose {
+  max-width: var(--col-max);
+  color: var(--fg-1);
+}
+.prose p { margin: 0 0 1.1rem; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { color: var(--fg); font-weight: 700; }
+.prose em { color: var(--fg); font-style: italic; }
+.prose code {
+  font-family: var(--mono);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 0.05rem 0.35rem;
+  font-size: 0.92em;
+  color: var(--hash);
+}
+
+.callout {
+  border-left: 3px solid var(--head);
+  background: linear-gradient(90deg, var(--head-dim), transparent);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  font-size: 1rem;
+  color: var(--fg);
+}
+.callout strong { color: var(--head); }
+.callout .lead { display: block; color: var(--head); font-size: 11px; letter-spacing: 0.15em; margin-bottom: 0.4rem; text-transform: uppercase; }
+
+/* lists styled as add/remove */
+.list-add, .list-rem {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.5rem;
+}
+.list-add li, .list-rem li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border-left: 2px solid transparent;
+  align-items: baseline;
+  color: var(--fg-1);
+  font-size: 0.97rem;
+}
+.list-add li {
+  background: var(--add-bg);
+  border-left-color: var(--add);
+}
+.list-add li::before {
+  content: "+";
+  color: var(--add);
+  font-weight: 700;
+  text-align: center;
+}
+.list-rem li {
+  background: var(--rem-bg);
+  border-left-color: var(--rem);
+}
+.list-rem li::before {
+  content: "−";
+  color: var(--rem);
+  font-weight: 700;
+  text-align: center;
+}
+.list-add li strong, .list-rem li strong { color: var(--fg); }
+
+/* numbered workflow */
+.workflow {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+.workflow .step {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--hash);
+  transition: border-left-color 0.2s ease, transform 0.2s ease;
+}
+.workflow .step:hover {
+  border-left-color: var(--head);
+  transform: translateX(4px);
+}
+.workflow .step .num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--hash);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  padding-top: 0.15rem;
+}
+.workflow .step .body strong {
+  display: block;
+  color: var(--fg);
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+.workflow .step .body span {
+  color: var(--fg-2);
+  font-size: 0.92rem;
+}
+
+/* criteria table */
+.criteria {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  border: 1px solid var(--line);
+}
+.criteria th, .criteria td {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.criteria th {
+  background: var(--bg-2);
+  font-weight: 700;
+  color: var(--head);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.criteria tr:last-child td { border-bottom: none; }
+.criteria tr:hover td { background: var(--bg-1); }
+.criteria .crit-name { color: var(--fg); font-weight: 700; }
+.criteria .crit-weight {
+  font-weight: 700;
+  color: var(--head);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.criteria .crit-bar {
+  height: 4px;
+  background: var(--bg-3);
+  margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.criteria .crit-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--w, 0%);
+  background: linear-gradient(90deg, var(--head), var(--hash));
+  box-shadow: 0 0 8px var(--head-glow);
+}
+
+/* prizes */
+.prizes {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+.prize {
+  position: relative;
+  padding: 1.5rem 1.5rem 1.5rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.prize.head-prize {
+  border: 1px solid var(--head);
+  background:
+    radial-gradient(circle at 20% 0%, var(--head-dim), transparent 60%),
+    var(--bg-1);
+  box-shadow: 0 0 0 0 var(--head-glow);
+  animation: head-pulse 4s ease-in-out infinite;
+}
+@keyframes head-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--head-glow); }
+  50% { box-shadow: 0 0 40px -10px var(--head-glow); }
+}
+.prize-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--hash);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  margin-bottom: 0.75rem;
+}
+.head-prize .prize-tag { color: var(--head); border-color: var(--head); }
+.prize h3 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.prize h3 .ref { color: var(--head); font-weight: 800; }
+.prize .gloss {
+  font-style: italic;
+  color: var(--fg-2);
+  font-size: 0.92rem;
+  margin: 0 0 1rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--line);
+}
+.prize ul { padding-left: 1.1rem; margin: 0; color: var(--fg-1); }
+.prize ul li { margin: 0.35rem 0; }
+.prize ul li strong { color: var(--fg); }
+.head-prize::after {
+  content: "* HEAD -> main";
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 10.5px;
+  color: var(--head);
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+
+/* schedule timeline */
+.timeline {
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.timeline .row {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px dashed var(--line);
+  align-items: baseline;
+}
+.timeline .row .glyph {
+  color: var(--hash);
+  font-weight: 700;
+}
+.timeline .row.major { background: var(--head-dim); padding-left: 0.75rem; padding-right: 0.75rem; border-bottom-color: var(--head); }
+.timeline .row.major .glyph { color: var(--head); }
+.timeline .row.major .stage { color: var(--head); font-weight: 700; }
+.timeline .row .stage { color: var(--fg); }
+.timeline .row .date {
+  font-variant-numeric: tabular-nums;
+  color: var(--hash);
+  background: var(--hash-dim);
+  padding: 0.1rem 0.5rem;
+  font-size: 0.85rem;
+}
+.timeline .row.major .date { color: var(--head); background: transparent; border: 1px dashed var(--head); }
+
+/* contributors / banca grid */
+.contrib {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.contrib .card {
+  padding: 1.2rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--hash);
+  transition: border-top-color 0.2s ease;
+}
+.contrib .card:hover { border-top-color: var(--head); }
+.contrib .card .role {
+  color: var(--hash);
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.contrib .card h4 {
+  margin: 0 0 0.4rem;
+  color: var(--fg);
+  font-size: 1.05rem;
+}
+.contrib .card p { margin: 0; color: var(--fg-2); font-size: 0.88rem; }
+
+/* sponsors carta */
+.sponsor-letter {
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+.sponsor-letter > .stamp {
+  display: inline-block;
+  font-size: 10.5px;
+  letter-spacing: 0.15em;
+  color: var(--hash);
+  border: 1px dashed var(--hash);
+  padding: 0.25rem 0.6rem;
+  margin-bottom: 1rem;
+  transform: rotate(-1.5deg);
+}
+.sponsor-letter h3 {
+  margin: 1.25rem 0 0.5rem;
+  color: var(--head);
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+.sponsor-letter h3::before { content: "## "; color: var(--fg-3); }
+
+/* contact / footer */
+.signature {
+  margin-top: clamp(4rem, 8vw, 6rem);
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--fg-2);
+}
+.signature .sig-line {
+  font-size: 13px;
+  color: var(--fg-3);
+  margin: 0.3rem 0;
+}
+.signature .sig-line.cob { color: var(--fg-2); }
+.signature .sig-line .label { color: var(--fg-3); }
+.signature .sig-line .who { color: var(--fg); font-weight: 500; }
+.signature .sig-line .email { color: var(--link); }
+
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 2rem;
+}
+.contact-links a {
+  border: 1px solid var(--line-strong);
+  padding: 0.5rem 0.85rem;
+  font-size: 12.5px;
+}
+
+/* ============= BOTTOM STATUS BAR — vim modeline ============= */
+.bar-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  padding: 0.45rem clamp(0.75rem, 2vw, 1.5rem);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+  backdrop-filter: blur(8px);
+}
+.bar-bottom .mode {
+  color: var(--bg);
+  background: var(--head);
+  padding: 0.05rem 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.bar-bottom .where { color: var(--fg-1); }
+.bar-bottom .where .sha { color: var(--hash); }
+.bar-bottom .info { text-align: right; color: var(--fg-2); }
+.bar-bottom .info .key {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 0 0.4rem;
+  margin: 0 0.15rem;
+  color: var(--fg-1);
+}
+
+/* ============= RESPONSIVE ============= */
+@media (max-width: 720px) {
+  html { font-size: 14px; }
+  .bar-top { font-size: 11px; gap: 0.5rem; padding: 0.5rem 0.75rem; }
+  .bar-top .center { display: none; }
+  .bar-top .right .pill .label { display: none; }
+  .hero-title { font-size: clamp(3rem, 22vw, 6rem); }
+  .hero-sub { font-size: 1rem; }
+  .commit-header { grid-template-columns: 1fr; }
+  .commit-header .commit-msg { font-size: 1.5rem; }
+  .workflow .step { grid-template-columns: 2.5rem 1fr; gap: 0.6rem; padding: 0.85rem; }
+  .workflow .step .num { font-size: 1.4rem; }
+  .criteria { font-size: 0.85rem; }
+  .criteria th, .criteria td { padding: 0.6rem 0.5rem; }
+  .timeline .row { grid-template-columns: 1.5rem 1fr; }
+  .timeline .row .date { grid-column: 2; justify-self: start; }
+  .bar-bottom { font-size: 10.5px; grid-template-columns: auto 1fr; }
+  .bar-bottom .info { display: none; }
+  main { padding-bottom: 6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .blink, .cursor { animation: none !important; }
+}
+
+/* keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--head);
+  outline-offset: 2px;
+}
+
+/* scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     TOP STATUS BAR — looks like a tmux/vim status line
+     ========================================================= -->
+<div class="bar-top" role="banner" aria-label="terminal status">
+  <span><span class="prompt-host">da-ti@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git show v1.0.0</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
+  <span class="center">[ regulamento.md · 1ª edição · 2026 ]</span>
+  <span class="right">
+    <span class="pill"><span class="dot"></span><span class="label">submissões em breve</span></span>
+  </span>
+</div>
+
+<main>
+
+  <!-- =====================================================
+       HERO
+       ===================================================== -->
+  <section class="hero" id="hero">
+    <div class="hero-prompt"><span class="glyph">$</span> cat <span class="path">README.md</span></div>
+    <h1 class="hero-title"><span class="gt">&gt;</span> git show<span class="cursor" aria-hidden="true"></span></h1>
+    <p class="hero-sub">Mostra o que tu <span class="commit-emph">commitou</span>.<br/>O evento que coloca os projetos dos alunos de TI da UNIVATES na vitrine.</p>
+
+    <div class="hero-meta">
+      <span class="kv">edição<span class="var">{{ano}}</span><strong>· 1ª edição</strong></span>
+      <span class="kv">realização<strong>DA de TI · UNIVATES</strong></span>
+      <span class="kv">status<strong style="color: var(--head);">aceitando submissões em breve</strong></span>
+    </div>
+
+    <div class="hero-cta">
+      <a href="#submeter" class="btn primary">git push --submeter <span class="arrow">→</span></a>
+      <a href="#regras" class="btn">cat regras.md</a>
+      <a href="#calendario" class="btn">git log --datas</a>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       NAV — as if it were `git log --oneline`
+       ===================================================== -->
+  <nav class="nav-log" aria-label="seções">
+    <span class="label">$ git log --oneline</span>
+    <ol>
+      <li><a href="#sobre"><span class="sha">a3f2c1b</span>sobre</a></li>
+      <li><a href="#motivacao"><span class="sha">7d4e9a1</span>motivação</a></li>
+      <li><a href="#workflow"><span class="sha">b1c2d3e</span>como funciona</a></li>
+      <li><a href="#regras"><span class="sha">f5a8b2c</span>regras</a></li>
+      <li><a href="#pitch"><span class="sha">2e6f0d4</span>o pitch é o readme</a></li>
+      <li><a href="#criterios"><span class="sha">8c4b7a9</span>critérios</a></li>
+      <li><a href="#premios"><span class="sha">1a2b3c4</span>titulação e prêmios</a></li>
+      <li><a href="#calendario"><span class="sha">9d8e7f6</span>calendário</a></li>
+      <li><a href="#banca"><span class="sha">5b4c3d2</span>banca</a></li>
+      <li><a href="#apoiadores"><span class="sha">e1f0a9b</span>apoiadores</a></li>
+      <li><a href="#final"><span class="sha">6d5c4b3</span>disposições</a></li>
+      <li><a href="#contato"><span class="sha">0a1b2c3</span>contato</a></li>
+    </ol>
+  </nav>
+
+  <!-- =====================================================
+       SOBRE
+       ===================================================== -->
+  <section class="scene reveal" id="sobre">
+    <header class="commit-header">
+      <span class="commit-sha">commit a3f2c1b</span>
+      <span class="commit-author">Author: DA de TI &lt;da-ti@univates&gt;</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> O que é o <code style="font-size:0.85em">git show</code></h2>
+    </header>
+
+    <div class="diff-file"><span class="a">--- a/sobre/o-evento.md</span></div>
+    <div class="diff-file"><span class="b">+++ b/sobre/o-evento.md</span></div>
+
+    <div class="hunk">
+      <div class="hunk-header">@@ -0,0 +1,42 @@ tl;dr</div>
+      <div class="line add"><span class="mark">+</span><span class="code"><strong>git show</strong> é o evento anual do DA de TI da UNIVATES.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Premia os melhores projetos pessoais e acadêmicos dos alunos do curso.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
+      <div class="line"><span class="mark"></span><span class="code">A ideia é simples:</span></div>
+      <div class="line"><span class="mark"></span><span class="code">você já tem um repositório legal no seu GitHub —</span></div>
+      <div class="line"><span class="mark"></span><span class="code">um projeto pessoal, um trabalho de aula que ficou bom,</span></div>
+      <div class="line"><span class="mark"></span><span class="code">uma ideia maluca que programou num fim de semana.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Você <strong>submete o link</strong>.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Uma banca (professores + empresas apoiadoras) avalia.</span></div>
+      <div class="line add"><span class="mark">+</span><span class="code">Os melhores vão pro <strong>Demo Day</strong>.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code">~~Montar projeto novo~~</span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code">~~Fricção burocrática~~</span></div>
+      <div class="line rem"><span class="mark">−</span><span class="code">~~PowerPoint até a final~~</span></div>
+    </div>
+
+    <div class="callout">
+      <span class="lead">man git-show</span>
+      O comando <code>git show</code> no terminal mostra o conteúdo de um commit.<br/>
+      No evento, ele mostra o que os alunos de TI da UNIVATES estão <strong>construindo</strong>.
+    </div>
+  </section>
+
+  <!-- =====================================================
+       MOTIVAÇÃO
+       ===================================================== -->
+  <section class="scene reveal" id="motivacao">
+    <header class="commit-header">
+      <span class="commit-sha">commit 7d4e9a1</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Por que existe</h2>
+    </header>
+
+    <div class="prose">
+      <p>Existe muito código bom sendo escrito por aluno de TI da UNIVATES que <em>nunca sai do localhost</em>. Projeto pessoal que ninguém vê, trabalho de aula que termina na nota e some, ideia que ficou parada no meio.</p>
+      <p>O <code>git show</code> é um empurrão estruturado: dá motivo pra <strong>terminar</strong>, <strong>expor</strong>, <strong>receber feedback</strong> de gente que trabalha na área, e ter o trabalho reconhecido publicamente.</p>
+      <p>Pra quem participa, é portfólio. Pra quem vence, é troféu, badge no README e visibilidade direta com as empresas que apoiam o curso. Pra UNIVATES, é mais uma forma de mostrar que <em>o pessoal daqui constrói coisa</em>.</p>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       WORKFLOW
+       ===================================================== -->
+  <section class="scene reveal" id="workflow">
+    <header class="commit-header">
+      <span class="commit-sha">commit b1c2d3e</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Como funciona</h2>
+    </header>
+
+    <div class="workflow">
+      <div class="step">
+        <div class="num">01</div>
+        <div class="body">
+          <strong>git push --submeter</strong>
+          <span>Submeta o link do seu repositório público pelo formulário oficial.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <div class="body">
+          <strong>Triagem técnica</strong>
+          <span>Comissão do DA + professores valida regras mínimas e qualidade básica.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <div class="body">
+          <strong>Avaliação dos finalistas</strong>
+          <span>Banca completa (professores + representantes dos apoiadores) avalia com base nos critérios públicos.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">04</div>
+        <div class="body">
+          <strong>Top Commits <svg class="icon" viewBox="0 0 16 16" aria-hidden="true" style="margin-left:0.25em;"><path d="M1.5 1.5h6l7 7-6 6-7-7v-6z"/><circle cx="4.5" cy="4.5" r="0.9" fill="currentColor" stroke="none"/></svg></strong>
+          <span>Os finalistas são anunciados publicamente.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">05</div>
+        <div class="body">
+          <strong>Demo Day presencial</strong>
+          <span>Cada finalista apresenta ao vivo seu projeto.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">06</div>
+        <div class="body">
+          <strong>HEAD revelado</strong>
+          <span>O grande vencedor é revelado no final da noite.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       REGRAS
+       ===================================================== -->
+  <section class="scene reveal" id="regras">
+    <header class="commit-header">
+      <span class="commit-sha">commit f5a8b2c</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Regras de submissão</h2>
+    </header>
+
+    <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/quem-pode.md</span></div>
+    <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Quem pode participar</h3>
+    <ul class="list-add">
+      <li>Alunos regularmente matriculados em <strong>qualquer curso de TI da UNIVATES</strong> (ADS, Ciência da Computação, Engenharia de Software, Sistemas de Informação ou afins) no semestre do evento.</li>
+      <li><strong>Individual ou em grupo.</strong> Em caso de grupo, todos os membros precisam ser alunos da UNIVATES.</li>
+      <li>Cada aluno pode submeter <strong>no máximo 2 projetos</strong>.</li>
+    </ul>
+
+    <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/repositorio.md</span></div>
+    <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Sobre o repositório</h3>
+    <ul class="list-add">
+      <li>Deve ser <strong>público</strong> e acessível sem login.</li>
+      <li>Hospedado em GitHub, GitLab, Bitbucket ou plataforma equivalente.</li>
+      <li>Criado <strong>há pelo menos 30 dias</strong> antes da submissão (verificado pela data de criação do repositório).</li>
+      <li><strong>Pelo menos 10 commits</strong>, em <strong>ao menos 5 datas distintas</strong>. Não vale o "init dump" — a banca quer ver evolução.</li>
+      <li>Precisa ter um <code>README.md</code> com: nome + descrição curta, stack/tecnologias, instruções de execução local, e ao menos 1 screenshot/GIF/link online.</li>
+      <li>Código <strong>majoritariamente autoral</strong>. Uso de libs, frameworks, snippets e ferramentas de IA é esperado — mas não pode ser fork cosmético nem resultado de um único prompt copiado.</li>
+    </ul>
+
+    <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/aceitos.md</span></div>
+    <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Tipos de projeto aceitos</h3>
+    <ul class="list-add">
+      <li>Projetos pessoais</li>
+      <li>Trabalhos de aula que evoluíram além do escopo da disciplina</li>
+      <li>Iniciações científicas e TCCs em andamento</li>
+      <li>Projetos de hackathon expandidos</li>
+      <li>Ferramentas internas, automações, scripts, jogos, apps, sites, bots, libs, extensões...</li>
+      <li><strong>Ideias experimentais, malucas ou "só pra ver se dá"</strong> — bem-vindas e incentivadas.</li>
+    </ul>
+
+    <div class="diff-file" style="margin-top:1.5rem"><span class="a">--- a/regras/nao-entra.md</span></div>
+    <h3 style="font-size:1.1rem;color:var(--rem);margin:0.5rem 0;">## O que não entra</h3>
+    <ul class="list-rem">
+      <li>Repositórios privados — ou que viraram públicos só para a submissão.</li>
+      <li>Tutoriais seguidos passo a passo sem contribuição original significativa.</li>
+      <li>Forks com mudanças mínimas.</li>
+      <li>Projetos que violem direitos autorais, termos de uso de plataformas ou ética acadêmica.</li>
+    </ul>
+  </section>
+
+  <!-- =====================================================
+       PITCH
+       ===================================================== -->
+  <section class="scene reveal" id="pitch">
+    <header class="commit-header">
+      <span class="commit-sha">commit 2e6f0d4</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> O pitch é o README</h2>
+    </header>
+
+    <div class="callout" style="border-left-color: var(--hash); background: linear-gradient(90deg, var(--hash-dim), transparent);">
+      <span class="lead" style="color: var(--hash);">manifesto</span>
+      No <code>git show</code>, <strong style="color: var(--hash);">o README é o seu pitch</strong>.
+      A banca lê o repositório como se fosse um produto de verdade.
+      <br/><br/>
+      Não precisa gravar vídeo. Não precisa enviar slides. Não precisa preencher formulário longo.<br/>
+      Capricha no README, deixa o código limpo, e pronto.
+    </div>
+
+    <div class="prose">
+      <p>Um README forte responde rapidamente:</p>
+    </div>
+
+    <ul class="list-add">
+      <li><strong>O que é isso?</strong></li>
+      <li><strong>Por que existe?</strong></li>
+      <li><strong>Como funciona?</strong></li>
+      <li><strong>Como eu rodo?</strong></li>
+      <li><strong>O que vem por aí?</strong></li>
+    </ul>
+
+    <div class="prose">
+      <p>Quem chega à final apresenta ao vivo no Demo Day — aí sim, com slide, demo rolando ao vivo, do jeito que preferir.</p>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       CRITÉRIOS
+       ===================================================== -->
+  <section class="scene reveal" id="criterios">
+    <header class="commit-header">
+      <span class="commit-sha">commit 8c4b7a9</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Critérios de avaliação</h2>
+    </header>
+
+    <table class="criteria" aria-label="Critérios e pesos">
+      <thead>
+        <tr><th>Critério</th><th>Peso</th><th>O que a banca olha</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="crit-name">Originalidade e criatividade<div class="crit-bar" style="--w:20%"></div></td>
+          <td class="crit-weight">20%</td>
+          <td>A ideia traz algo novo, inesperado ou bem-resolvido?</td>
+        </tr>
+        <tr>
+          <td class="crit-name">Utilidade e impacto<div class="crit-bar" style="--w:25%"></div></td>
+          <td class="crit-weight">25%</td>
+          <td>Resolve um problema real, mesmo que pequeno?</td>
+        </tr>
+        <tr>
+          <td class="crit-name">Qualidade técnica<div class="crit-bar" style="--w:20%"></div></td>
+          <td class="crit-weight">20%</td>
+          <td>Arquitetura, boas práticas, escolhas coerentes de stack.</td>
+        </tr>
+        <tr>
+          <td class="crit-name">Documentação<div class="crit-bar" style="--w:15%"></div></td>
+          <td class="crit-weight">15%</td>
+          <td>README, instruções, decisões técnicas explicadas.</td>
+        </tr>
+        <tr>
+          <td class="crit-name">Pitch no Demo Day<div class="crit-bar" style="--w:20%"></div></td>
+          <td class="crit-weight">20%</td>
+          <td>Clareza, domínio do projeto, apresentação ao vivo.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="prose" style="font-size:0.92rem;color:var(--fg-2);">
+      <p>Na fase de <strong>triagem</strong>, o critério "Pitch" não é considerado — a banca avalia somente pelo repositório. O peso do pitch só entra na <strong>final</strong>.</p>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       PRÊMIOS
+       ===================================================== -->
+  <section class="scene reveal" id="premios">
+    <header class="commit-header">
+      <span class="commit-sha">commit 1a2b3c4</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Titulação e premiação</h2>
+    </header>
+
+    <div class="prizes">
+      <article class="prize head-prize">
+        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2.5h6v3.5a3 3 0 11-6 0V2.5z"/><path d="M5 3.5H2.5v1.5A2 2 0 004.5 7"/><path d="M11 3.5h2.5v1.5A2 2 0 0111.5 7"/><path d="M5.5 13.5h5"/><path d="M8 9v4.5"/></svg>grande vencedor · 1 projeto</span>
+        <h3><span class="ref">HEAD</span> — o topo da árvore</h3>
+        <p class="gloss">No git, <code>HEAD</code> aponta para o commit atual: o topo, a referência. O HEAD do <code>git show</code> é o projeto que define o ano.</p>
+        <ul>
+          <li><strong>Troféu HEAD rotativo</strong> — troféu físico oficial que fica com o vencedor por 1 ano. O nome do projeto e do(s) autor(es) é gravado em plaquinha. Na edição seguinte, retorna pra cerimônia e é entregue ao próximo HEAD. <em>Vira tradição.</em></li>
+          <li><strong>Domínio <code>.dev</code> por 1 ano</strong> custeado pelo DA, à escolha do(s) vencedor(es).</li>
+          <li><strong>Selo digital "HEAD · git show {{ano}}"</strong> — badge oficial pra fixar no README. Fica no GitHub para sempre.</li>
+          <li><strong>Kit Finalista completo</strong> — camiseta personalizada do <code>git show {{ano}}</code> + copo térmico oficial.</li>
+          <li><strong>Destaque permanente</strong> no Hall da Fama do DA de TI.</li>
+        </ul>
+      </article>
+
+      <article class="prize">
+        <span class="prize-tag"><svg class="icon lead" viewBox="0 0 16 16" stroke-linejoin="miter" aria-hidden="true"><path d="M8 1.5l1.9 4.3 4.6.4-3.5 3.1 1 4.6L8 11.5l-4 2.4 1-4.6L1.5 6.2l4.6-.4L8 1.5z"/></svg>finalistas · até 5 projetos</span>
+        <h3><span class="ref">Top Commits</span> — os destaques do histórico</h3>
+        <p class="gloss">No git, top commits são os destaques recentes do histórico. Aqui, são os projetos que merecem o palco do Demo Day.</p>
+        <ul>
+          <li><strong>Kit Finalista</strong> — camiseta personalizada do <code>git show {{ano}}</code> + copo térmico oficial.</li>
+          <li><strong>Selo digital "Top Commit · git show {{ano}}"</strong> pra fixar no README.</li>
+          <li><strong>Apresentação no Demo Day</strong> com presença dos apoiadores e da banca.</li>
+          <li><strong>Destaque</strong> no Hall da Fama do DA de TI.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       CALENDÁRIO
+       ===================================================== -->
+  <section class="scene reveal" id="calendario">
+    <header class="commit-header">
+      <span class="commit-sha">commit 9d8e7f6</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Calendário</h2>
+    </header>
+
+    <div class="timeline">
+      <div class="row"><span class="glyph">●</span><span class="stage">Abertura das submissões</span><span class="date">{{data}}</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Encerramento das submissões</span><span class="date">{{data}}</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Triagem técnica</span><span class="date">{{data}} → {{data}}</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Anúncio dos finalistas (Top Commits)</span><span class="date">{{data}}</span></div>
+      <div class="row major"><span class="glyph">★</span><span class="stage">Demo Day presencial</span><span class="date">{{data}}</span></div>
+      <div class="row"><span class="glyph">●</span><span class="stage">Entrega oficial do troféu HEAD</span><span class="date">Demo Day</span></div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       BANCA
+       ===================================================== -->
+  <section class="scene reveal" id="banca">
+    <header class="commit-header">
+      <span class="commit-sha">commit 5b4c3d2</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> A banca</h2>
+    </header>
+
+    <div class="prose">
+      <p>A banca avaliadora é composta por:</p>
+    </div>
+
+    <div class="contrib">
+      <div class="card">
+        <div class="role">CODEOWNERS</div>
+        <h4>Professores do curso de TI</h4>
+        <p>Indicados pela coordenação. Peso individual igual.</p>
+      </div>
+      <div class="card">
+        <div class="role">REVIEWERS</div>
+        <h4>Representantes dos apoiadores</h4>
+        <p>Cada empresa apoiadora indica 1 avaliador (preferencialmente da área técnica). Peso igual ao dos professores.</p>
+      </div>
+      <div class="card">
+        <div class="role">MAINTAINER</div>
+        <h4>Diretório Acadêmico</h4>
+        <p>Voto de desempate, sem nota direta. Organização e tabulação transparentes.</p>
+      </div>
+    </div>
+
+    <div class="prose" style="font-size:0.92rem;color:var(--fg-2);margin-top:1rem;">
+      <p>Critérios e pesos são públicos. As notas são compiladas pelo DA e o resultado é tabulado de forma transparente, com possibilidade de divulgação anonimizada das notas finais.</p>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       APOIADORES — carta aberta
+       ===================================================== -->
+  <section class="scene reveal" id="apoiadores">
+    <header class="commit-header">
+      <span class="commit-sha">commit e1f0a9b</span>
+      <span class="commit-author">Author: DA de TI &lt;da-ti@univates&gt;</span>
+      <span class="commit-date">To: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;empresas-apoiadoras@</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Para os apoiadores</h2>
+    </header>
+
+    <div class="sponsor-letter">
+      <span class="stamp">CARTA ABERTA · APOIADORES OFICIAIS DO DA</span>
+      <div class="prose">
+        <p>Esta seção é uma carta aberta às empresas que já apoiam o Diretório Acadêmico de TI.</p>
+        <p>O <code>git show</code> <strong>não é um pedido de patrocínio à parte</strong>. É uma das ações que o DA entrega como contrapartida dentro do apoio que sua empresa já firmou conosco. <strong>Não há aporte financeiro adicional envolvido.</strong></p>
+      </div>
+
+      <h3>O que pedimos da empresa apoiadora</h3>
+      <ul class="list-add">
+        <li><strong>Indicar 1 representante para compor a banca</strong> — idealmente alguém da área técnica (dev, tech lead, CTO, gerente de engenharia). Avaliação assíncrona e online, em janela de ~2 semanas.</li>
+        <li><strong>Presença no Demo Day</strong> com pelo menos 1 representante (idealmente o mesmo da banca). Duração estimada: 2 horas, em data combinada.</li>
+      </ul>
+      <p class="prose" style="margin-top:-0.5rem;color:var(--fg-2);font-size:0.9rem;">Só isso.</p>
+
+      <h3>O que a empresa ganha</h3>
+      <ul class="list-add">
+        <li><strong>Acesso direto a uma vitrine curada</strong> dos melhores alunos de TI da UNIVATES — comprovadamente gente que constrói coisa por conta própria. O sinal técnico mais forte que existe pra contratação de júnior.</li>
+        <li><strong>Visibilidade da marca</strong> no site oficial, material de divulgação e nos selos digitais que vencedores colam no README. Selos públicos no GitHub indefinidamente, com link pra página dos apoiadores.</li>
+        <li><strong>Networking direto no Demo Day</strong> — conversa com os finalistas sem intermediário, num formato que não é entrevista de emprego mas pode virar uma.</li>
+        <li><strong>Direito de propor um "Desafio Apoiador"</strong> opcional em edições futuras — sua empresa sugere um tema (sustentabilidade, fintech, automação industrial) e quem topa concorre numa categoria especial associada à sua marca.</li>
+        <li><strong>Selo de "Apoiador Fundador"</strong> para quem participar da 1ª edição — reconhecimento que entra no histórico do evento e fica em todas as edições seguintes.</li>
+      </ul>
+
+      <h3>Por que isso importa</h3>
+      <div class="prose">
+        <p>Contratar dev júnior é <em>caro</em> e <em>arriscado</em>. Currículo conta pouco, entrevista técnica filtra mal, e a maior parte da decisão acaba sendo intuição.</p>
+        <p>O <code>git show</code> te coloca, em uma noite, na frente de alunos que <strong>já estão construindo coisas por conta própria</strong> — com código público, decisões documentadas e capacidade de explicar o que fizeram.</p>
+        <p style="color:var(--head);font-weight:500;">É a forma mais barata e direta de encurtar o ciclo de talento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       DISPOSIÇÕES FINAIS
+       ===================================================== -->
+  <section class="scene reveal" id="final">
+    <header class="commit-header">
+      <span class="commit-sha">commit 6d5c4b3</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Disposições finais</h2>
+    </header>
+
+    <div class="diff-file"><span class="b">+++ b/LICENSE</span></div>
+    <div class="hunk">
+      <div class="hunk-header">@@ disposições gerais @@</div>
+      <div class="line"><span class="mark"></span><span class="code">O DA de TI da UNIVATES reserva-se o direito de fazer ajustes pequenos</span></div>
+      <div class="line"><span class="mark"></span><span class="code">neste regulamento até a abertura oficial das submissões.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">Após a abertura, eventuais mudanças só ocorrem por motivo de</span></div>
+      <div class="line"><span class="mark"></span><span class="code">força maior e com aviso prévio a todos os inscritos.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
+      <div class="line"><span class="mark"></span><span class="code">Casos omissos serão resolvidos pela diretoria do DA em</span></div>
+      <div class="line"><span class="mark"></span><span class="code">conjunto com a coordenação do curso.</span></div>
+      <div class="line"><span class="mark"></span><span class="code">&nbsp;</span></div>
+      <div class="line"><span class="mark"></span><span class="code">A participação no `git show` implica concordância com este</span></div>
+      <div class="line"><span class="mark"></span><span class="code">regulamento e autorização para uso de nome, foto e descrição</span></div>
+      <div class="line"><span class="mark"></span><span class="code">do projeto em material institucional do evento e do DA.</span></div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+       CONTATO + SIGN-OFF
+       ===================================================== -->
+  <section class="scene reveal" id="contato">
+    <header class="commit-header">
+      <span class="commit-sha">commit 0a1b2c3</span>
+      <span class="commit-author">Author: DA de TI</span>
+      <span class="commit-date">Date: &nbsp;&nbsp;&nbsp;{{abertura}}</span>
+      <h2 class="commit-msg"><span class="arrow">▸</span> Contato</h2>
+    </header>
+
+    <div class="prose">
+      <p><strong>Diretório Acadêmico de Tecnologia da Informação — UNIVATES</strong></p>
+    </div>
+
+    <div class="contact-links">
+      <a href="mailto:{{e-mail}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10"/><path d="M1.5 4l6.5 5 6.5-5"/></svg>{{e-mail}}</a>
+      <a href="{{instagram}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="3.5"/><circle cx="8" cy="8" r="3.2"/><circle cx="11.6" cy="4.4" r="0.7" fill="currentColor" stroke="none"/></svg>@{{instagram}}</a>
+      <a href="{{site}}"><svg class="icon lead" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13"/><ellipse cx="8" cy="8" rx="3" ry="6.5"/></svg>{{site}}</a>
+    </div>
+
+    <div id="submeter" style="margin-top:2rem;">
+      <a href="#" class="btn primary">git push --submeter <span class="arrow">→</span></a>
+    </div>
+
+    <div class="signature">
+      <div class="sig-line"><span class="label">commit message:</span></div>
+      <div class="sig-line cob"><span class="who">Initial release: <code>git show {{ano}}</code> · 1ª edição.</span></div>
+      <div class="sig-line cob">&nbsp;</div>
+      <div class="sig-line"><span class="label">Signed-off-by:</span> <span class="who">Diretório Acadêmico de TI</span> &lt;<span class="email">{{e-mail}}</span>&gt;</div>
+      <div class="sig-line"><span class="label">Co-authored-by:</span> <span class="who">cada aluno que commitou</span> &lt;builds-things@univates&gt;</div>
+      <div class="sig-line" style="margin-top:1.5rem;color:var(--fg-3);">
+        <em><code>git show</code> é uma iniciativa do DA de TI da UNIVATES.</em>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =========================================================
+     BOTTOM STATUS BAR — vim modeline
+     ========================================================= -->
+<div class="bar-bottom" role="contentinfo" aria-label="status">
+  <span class="mode">NORMAL</span>
+  <span class="where">~/eventos/git-show/<span id="where-section">regulamento.md</span> · <span class="sha" id="where-sha">a3f2c1b</span></span>
+  <span class="info">
+    <span class="key">j</span><span class="key">k</span> scroll · <span class="key">/</span> buscar · <span class="key">:wq</span> sair
+  </span>
+</div>
+
+<script>
+/* =====================================================================
+   Minimal, purposeful JS. No framework, no bloat. All under 100 LOC.
+   1) Typewriter on prompt cmd
+   2) IntersectionObserver: update bottom status bar + reveal-on-scroll
+   3) Easter egg: type "git show" anywhere → confetti of commit hashes
+   ===================================================================== */
+
+(function () {
+  // ---------- typewriter on top status bar prompt ----------
+  const cmdEl = document.getElementById('prompt-cmd');
+  if (cmdEl) {
+    const full = cmdEl.textContent;
+    cmdEl.textContent = '';
+    let i = 0;
+    const type = () => {
+      if (i <= full.length) {
+        cmdEl.textContent = full.slice(0, i);
+        i++;
+        setTimeout(type, 55 + Math.random() * 35);
+      }
+    };
+    setTimeout(type, 400);
+  }
+
+  // ---------- bottom status bar tracker ----------
+  const sectionMap = {
+    hero:        { name: 'README.md',           sha: 'a3f2c1b' },
+    sobre:       { name: 'sobre.md',            sha: 'a3f2c1b' },
+    motivacao:   { name: 'motivacao.md',        sha: '7d4e9a1' },
+    workflow:    { name: 'workflow.md',         sha: 'b1c2d3e' },
+    regras:      { name: 'CONTRIBUTING.md',     sha: 'f5a8b2c' },
+    pitch:       { name: 'pitch.md',            sha: '2e6f0d4' },
+    criterios:   { name: 'criterios.md',        sha: '8c4b7a9' },
+    premios:     { name: 'premios.md',          sha: '1a2b3c4' },
+    calendario:  { name: 'calendario.md',       sha: '9d8e7f6' },
+    banca:       { name: 'CODEOWNERS',          sha: '5b4c3d2' },
+    apoiadores:  { name: 'apoiadores.md',       sha: 'e1f0a9b' },
+    final:       { name: 'LICENSE',             sha: '6d5c4b3' },
+    contato:     { name: 'CONTACT.md',          sha: '0a1b2c3' },
+  };
+  const whereName = document.getElementById('where-section');
+  const whereSha  = document.getElementById('where-sha');
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        const id = entry.target.id;
+        if (sectionMap[id] && whereName) {
+          whereName.textContent = sectionMap[id].name;
+          whereSha.textContent  = sectionMap[id].sha;
+        }
+      }
+    });
+  }, { threshold: 0.25, rootMargin: '-80px 0px -45% 0px' });
+
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---------- easter egg: type "git show" anywhere ----------
+  let buf = '';
+  const target = 'git show';
+  window.addEventListener('keydown', (e) => {
+    if (e.key.length !== 1) return;
+    buf = (buf + e.key).slice(-target.length);
+    if (buf === target) {
+      rainHashes();
+      buf = '';
+    }
+  });
+
+  function rainHashes() {
+    const colors = ['#79f2c5', '#f0b95e', '#4ec264', '#82b9ff'];
+    const chars = '0123456789abcdef';
+    for (let i = 0; i < 40; i++) {
+      const span = document.createElement('span');
+      let hash = '';
+      for (let j = 0; j < 7; j++) hash += chars[Math.floor(Math.random() * 16)];
+      span.textContent = hash;
+      span.style.cssText = `
+        position: fixed;
+        top: -3vh;
+        left: ${Math.random() * 100}vw;
+        color: ${colors[Math.floor(Math.random() * colors.length)]};
+        font-family: var(--mono);
+        font-size: ${10 + Math.random() * 6}px;
+        font-weight: 700;
+        z-index: 200;
+        pointer-events: none;
+        opacity: 0.9;
+        text-shadow: 0 0 8px currentColor;
+        transition: transform ${2 + Math.random() * 3}s linear, opacity ${2 + Math.random() * 3}s linear;
+        will-change: transform;
+      `;
+      document.body.appendChild(span);
+      requestAnimationFrame(() => {
+        span.style.transform = `translateY(${110 + Math.random() * 10}vh) rotate(${(Math.random() - 0.5) * 90}deg)`;
+        span.style.opacity = '0';
+      });
+      setTimeout(() => span.remove(), 5500);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
