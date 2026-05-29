@@ -549,15 +549,17 @@ section.scene {
   padding: 0;
   margin: 1rem 0 1.5rem;
 }
+/* normal block li with absolute-positioned bullet: avoids the grid
+   auto-placement bug where a loose text node after <strong> got placed
+   into the narrow first column and wrapped one word per line. */
 .list-add li, .list-rem li {
-  display: grid;
-  grid-template-columns: 1.5rem 1fr;
-  gap: 0.4rem;
-  padding: 0.4rem 0.5rem;
+  position: relative;
+  padding: 0.45rem 0.6rem 0.45rem 2rem;
   border-left: 2px solid transparent;
-  align-items: baseline;
   color: var(--fg-1);
   font-size: 0.97rem;
+  line-height: 1.55;
+  margin: 0.2rem 0;
 }
 .list-add li {
   background: var(--add-bg);
@@ -565,9 +567,11 @@ section.scene {
 }
 .list-add li::before {
   content: "+";
+  position: absolute;
+  left: 0.6rem;
+  top: 0.45rem;
   color: var(--add);
   font-weight: 700;
-  text-align: center;
 }
 .list-rem li {
   background: var(--rem-bg);
@@ -575,9 +579,11 @@ section.scene {
 }
 .list-rem li::before {
   content: "−";
+  position: absolute;
+  left: 0.6rem;
+  top: 0.45rem;
   color: var(--rem);
   font-weight: 700;
-  text-align: center;
 }
 .list-add li strong, .list-rem li strong { color: var(--fg); }
 
