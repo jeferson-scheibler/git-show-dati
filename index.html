@@ -155,14 +155,14 @@
         <div class="num">01</div>
         <div class="body">
           <strong>git push --submeter</strong>
-          <span>Entre 01/06 e 20/06 você abre uma <a href="https://github.com/jeferson-scheibler/git-show-dati/issues/new?template=submissao.yml" target="_blank" rel="noopener">issue de submissão</a> no nosso repo. Sem formulário externo, é GitHub puro: autentica, preenche os campos, marca o checklist do regulamento e submete.</span>
+          <span>Entre 01/06 e 20/06 você abre uma <a href="https://github.com/jeferson-scheibler/git-show-dati/issues/new?template=submissao.yml" target="_blank" rel="noopener">issue de submissão</a> no nosso repo. Sem formulário externo, é GitHub puro: autentica, preenche os campos, marca o checklist do regulamento e submete. Em segundos um bot valida o repo automaticamente e posta um relatório com checklist na sua issue.</span>
         </div>
       </div>
       <div class="step">
         <div class="num">02</div>
         <div class="body">
           <strong>Triagem técnica</strong>
-          <span>Até 22/06, a comissão do DATI valida o regulamento mínimo. Quem não cumpre é descartado nessa fase.</span>
+          <span>Até 22/06, a comissão do DATI revisa as submissões que passaram na validação automática e checa o que o bot não consegue ver: originalidade, qualidade do README e autenticidade do código. Quem não cumpre é descartado nessa fase.</span>
         </div>
       </div>
       <div class="step">
@@ -176,7 +176,7 @@
         <div class="num">04</div>
         <div class="body">
           <strong>Top Commits <svg class="icon" viewBox="0 0 16 16" aria-hidden="true" style="margin-left:0.25em;"><path d="M1.5 1.5h6l7 7-6 6-7-7v-6z"/><circle cx="4.5" cy="4.5" r="0.9" fill="currentColor" stroke="none"/></svg></strong>
-          <span>Até 27/06 os finalistas são anunciados publicamente nos canais do DATI.</span>
+          <span>Até 27/06 os finalistas são anunciados nos canais do DATI e recebem um comentário automático na própria issue com ping nos autores.</span>
         </div>
       </div>
       <div class="step">
@@ -243,6 +243,17 @@
       <li>Tutoriais seguidos passo a passo sem contribuição original significativa.</li>
       <li>Forks com mudanças mínimas.</li>
       <li>Projetos que violem direitos autorais, termos de uso de plataformas ou ética acadêmica.</li>
+    </ul>
+
+    <div class="diff-file" style="margin-top:1.5rem"><span class="b">+++ b/regras/fluxo.md</span></div>
+    <h3 style="font-size:1.1rem;color:var(--head);margin:0.5rem 0;">## Como sua submissão é processada</h3>
+    <ul class="list-add">
+      <li><strong>Validação automática imediata.</strong> Logo após enviar, um bot do nosso repo valida os 4 critérios técnicos verificáveis (público, criado há ≥30 dias, ≥10 commits, ≥5 datas distintas) e posta um relatório com checklist na sua issue em alguns minutos.</li>
+      <li><strong>Edição até 20/06/2026 23:59.</strong> Você pode editar a issue durante toda a janela. A cada edição o bot revalida automaticamente. Use isso pra corrigir o que cair em vermelho antes do prazo.</li>
+      <li><strong>Fechamento automático.</strong> Em 20/06 23:59 a janela trava. As issues recebem um comentário de encerramento e ficam <em>locked</em> para novos comentários. O estado da submissão nesse momento é o que vai pra triagem humana.</li>
+      <li><strong>Triagem humana (até 22/06).</strong> A comissão do DATI revisa o que o bot não consegue ver (originalidade, qualidade do README, autenticidade do código) e descarta o que não cumpre regulamento.</li>
+      <li><strong>Anúncio dos finalistas (até 27/06).</strong> Nos canais do DATI e por comentário automático na própria issue, com ping nos autores.</li>
+      <li><strong>Vitrine pública em tempo real.</strong> Todas as submissões abertas ficam visíveis em <a href="submissoes/">/submissoes</a>, atualizada direto da GitHub API. Transparência total no processo.</li>
     </ul>
   </section>
 
