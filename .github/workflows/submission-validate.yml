@@ -1,0 +1,159 @@
+name: Submission Validate
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  validate:
+    if: contains(github.event.issue.labels.*.name, 'submissao')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate repository and report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            // ----- helpers -----
+            const fmt = (ok, label, detail) =>
+              `- ${ok ? '✅' : '❌'} **${label}**${detail ? ` — ${detail}` : ''}`;
+
+            const fail = async (reasons) => {
+              const msg = [
+                '> validacao automatica',
+                '',
+                '**Problema antes de checar o repo:**',
+                '',
+                ...reasons.map(r => `- ❌ ${r}`),
+                '',
+                'Edite a issue corrigindo o(s) ponto(s) acima. Esse bot roda de novo a cada edição.',
+                '',
+                '— bot do `git show 2026`',
+              ].join('\n');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: msg,
+              });
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'validacao-passou',
+                });
+              } catch (e) {}
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['validacao-falhou'],
+              });
+            };
+
+            // ----- parse repo URL from issue body -----
+            const urlMatch = body.match(/###\s*URL do reposit[óo]rio no GitHub\s*\n+\s*(\S+)/i);
+            if (!urlMatch) {
+              await fail(['Não encontrei o campo "URL do repositório no GitHub" no corpo da issue. Use o formulário oficial pra submeter.']);
+              return;
+            }
+            const rawUrl = urlMatch[1].trim().replace(/[.,;]$/, '');
+            const ghMatch = rawUrl.match(/^https?:\/\/github\.com\/([^/\s]+)\/([^/\s#?]+?)(?:\.git)?\/?(?:[#?].*)?$/i);
+            if (!ghMatch) {
+              await fail([`A URL informada não parece um repositório do GitHub: \`${rawUrl}\``]);
+              return;
+            }
+            const owner = ghMatch[1];
+            const repo = ghMatch[2];
+
+            // ----- fetch repo metadata -----
+            let repoData;
+            try {
+              const r = await github.rest.repos.get({ owner, repo });
+              repoData = r.data;
+            } catch (e) {
+              await fail([
+                `Não consegui acessar \`${owner}/${repo}\`. Verifique se o repositório está **público** e se a URL está correta.`,
+                `Erro retornado: \`${e.status || 'desconhecido'}\``,
+              ]);
+              return;
+            }
+
+            const isPublic = !repoData.private;
+            const createdAt = new Date(repoData.created_at);
+            const now = new Date();
+            const ageDays = Math.floor((now - createdAt) / 86400000);
+            const isOldEnough = ageDays >= 30;
+
+            // ----- fetch commits (1 page = 100 max, enough for our checks) -----
+            let commits = [];
+            try {
+              const c = await github.rest.repos.listCommits({ owner, repo, per_page: 100 });
+              commits = c.data;
+            } catch (e) {
+              await fail([`Não consegui listar os commits de \`${owner}/${repo}\`. Erro: \`${e.status || 'desconhecido'}\``]);
+              return;
+            }
+
+            const commitCount = commits.length;
+            const hasEnoughCommits = commitCount >= 10;
+            const distinctDates = new Set(
+              commits.map(c => (c.commit.author && c.commit.author.date) || c.commit.committer.date)
+                .filter(Boolean)
+                .map(d => d.slice(0, 10))
+            );
+            const distinctDatesCount = distinctDates.size;
+            const hasDistinctDates = distinctDatesCount >= 5;
+
+            // ----- compose report -----
+            const allOk = isPublic && isOldEnough && hasEnoughCommits && hasDistinctDates;
+
+            const lines = [
+              '> validacao automatica',
+              '',
+              `Repositório verificado: [\`${owner}/${repo}\`](${repoData.html_url})`,
+              '',
+              fmt(isPublic, 'público no GitHub', isPublic ? null : 'o repo está privado. Torne-o público.'),
+              fmt(isOldEnough, 'criado há pelo menos 30 dias', `criado há ${ageDays} dia(s) (${createdAt.toISOString().slice(0,10)})`),
+              fmt(hasEnoughCommits, 'pelo menos 10 commits', `${commitCount} commit(s) na branch padrão${commitCount >= 100 ? '+' : ''}`),
+              fmt(hasDistinctDates, 'commits em ao menos 5 datas distintas', `${distinctDatesCount} data(s) distinta(s) nos últimos 100 commits`),
+              '',
+              allOk
+                ? '**Tudo verde.** A submissão passou na validação automática e segue para a triagem humana entre 21/06 e 22/06.'
+                : '**Algo não bateu.** Os itens com ❌ precisam ser corrigidos antes da triagem (até 20/06/2026 23:59). Você pode editar a issue ou ajustar o repositório e essa validação roda de novo automaticamente.',
+              '',
+              '_Esta é uma verificação técnica automatizada. A triagem humana avalia também o conteúdo do README, originalidade e demais critérios._',
+              '',
+              '— bot do `git show 2026`',
+            ];
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: lines.join('\n'),
+            });
+
+            // ----- swap labels based on result -----
+            const targetLabel = allOk ? 'validacao-passou' : 'validacao-falhou';
+            const otherLabel = allOk ? 'validacao-falhou' : 'validacao-passou';
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: otherLabel,
+              });
+            } catch (e) {}
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [targetLabel],
+            });

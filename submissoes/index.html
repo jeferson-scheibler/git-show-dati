@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<meta name="description" content="Submissões da 1ª edição do git show. Vitrine pública em tempo real via GitHub API." />
+<title>Submissões · git show 2026 · DATI · UNIVATES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0c0c'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='%2379f2c5'%3E%3E_%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<!-- =========================================================
+     TOP STATUS BAR (tmux-style)
+     ========================================================= -->
+<div class="bar-top" role="banner" aria-label="terminal status">
+  <span><span class="prompt-host">dati@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show/submissoes</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git log --label=submissao --all</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
+  <span class="center">[ submissoes/ · live · GitHub Issues API ]</span>
+  <span class="right">
+    <span class="pill"><span class="dot"></span><span class="label">submissões 01/06 &rarr; 20/06</span></span>
+  </span>
+</div>
+
+<main>
+
+  <section class="hero" style="padding: clamp(2rem, 6vw, 4rem) 0 clamp(2rem, 6vw, 4rem); border-bottom: 1px solid var(--line);">
+    <div class="hero-prompt"><span class="glyph">$</span> git log <span class="path">--label=submissao --all</span></div>
+    <h1 class="hero-title" style="font-size: clamp(2.5rem, 9vw, 6rem);"><span class="gt">&gt;</span> submissoes<span class="cursor" aria-hidden="true"></span></h1>
+    <p class="hero-sub">Vitrine pública das submissões da 1ª edição do <code style="color:var(--head);background:transparent;border:none;padding:0;">git show</code>. Atualiza em tempo real direto do GitHub.</p>
+
+    <div class="hero-cta">
+      <a href="../" class="btn">&larr; voltar pro regulamento</a>
+      <a href="https://github.com/jeferson-scheibler/git-show-dati/issues/new?template=submissao.yml" class="btn primary" target="_blank" rel="noopener">git push --submeter <span class="arrow">&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="scene reveal in" id="lista" style="margin-top: clamp(2rem, 4vw, 3rem);">
+
+    <div class="submissions-meta" id="sub-stats" aria-live="polite">
+      <span class="stat"><span class="num" id="stat-total">—</span><span class="lbl">total</span></span>
+      <span class="stat"><span class="num" id="stat-open">—</span><span class="lbl">em análise</span></span>
+      <span class="stat"><span class="num" id="stat-finalists">—</span><span class="lbl">finalistas</span></span>
+    </div>
+
+    <div class="submissions" id="submissions-list" aria-live="polite">
+      <div class="sub-loading"><span class="glyph">_</span>carregando submissões do GitHub...</div>
+    </div>
+
+    <p class="prose" style="font-size: 0.88rem; color: var(--fg-3); margin-top: 1.5rem;">
+      Dados puxados da <a href="https://docs.github.com/en/rest/issues/issues" target="_blank" rel="noopener">GitHub Issues API</a> sem autenticação (limite de 60 requisições por hora por IP). Esta página não armazena nada localmente.
+    </p>
+
+  </section>
+
+</main>
+
+<!-- =========================================================
+     BOTTOM STATUS BAR (vim modeline)
+     ========================================================= -->
+<div class="bar-bottom" role="contentinfo" aria-label="status">
+  <span class="mode">NORMAL</span>
+  <span class="where">~/eventos/git-show/<span id="where-section">submissoes/index.html</span> · <span class="sha" id="where-sha">live</span></span>
+  <span class="info">
+    <span class="key">r</span> reload · <span class="key">esc</span> voltar
+  </span>
+</div>
+
+<script>
+(function () {
+  const REPO = 'jeferson-scheibler/git-show-dati';
+  const API = `https://api.github.com/repos/${REPO}/issues?labels=submissao&state=all&per_page=100&sort=created&direction=desc`;
+
+  const $ = (id) => document.getElementById(id);
+  const list = $('submissions-list');
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    })[c]);
+  }
+
+  function cleanTitle(raw) {
+    if (!raw) return 'Submissão sem título';
+    const trimmed = raw.replace(/^\s*\[Submiss[ãa]o\]\s*/i, '').trim();
+    return trimmed.length ? trimmed : 'Submissão sem título';
+  }
+
+  function relativeTime(dateStr) {
+    const d = new Date(dateStr);
+    const diff = Math.floor((Date.now() - d) / 1000);
+    if (diff < 60) return 'agora';
+    if (diff < 3600) return `há ${Math.floor(diff/60)}min`;
+    if (diff < 86400) return `há ${Math.floor(diff/3600)}h`;
+    if (diff < 604800) return `há ${Math.floor(diff/86400)}d`;
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function statusFromIssue(issue) {
+    const labels = issue.labels.map(l => (typeof l === 'string' ? l : l.name).toLowerCase());
+    if (labels.includes('finalista')) return 'finalista';
+    if (labels.includes('aprovada')) return 'aprovada';
+    if (labels.includes('descartada')) return 'descartada';
+    if (issue.state === 'closed') return 'closed';
+    return 'open';
+  }
+
+  function statusLabel(s) {
+    return ({
+      'open': 'em análise',
+      'closed': 'encerrada',
+      'aprovada': 'aprovada',
+      'finalista': 'finalista',
+      'descartada': 'descartada',
+    })[s] || s;
+  }
+
+  function renderCard(issue) {
+    const status = statusFromIssue(issue);
+    const title = cleanTitle(issue.title);
+    const author = issue.user.login;
+    const when = relativeTime(issue.created_at);
+    const num = `#${issue.number}`;
+
+    return `
+      <a class="sub-card" data-status="${status}" href="${escapeHtml(issue.html_url)}" target="_blank" rel="noopener">
+        <span class="sub-sha">${escapeHtml(num)}</span>
+        <span class="sub-body">
+          <strong>${escapeHtml(title)}</strong>
+          <span class="sub-meta">
+            <span class="author">@${escapeHtml(author)}</span>
+            <span class="when">${escapeHtml(when)}</span>
+          </span>
+        </span>
+        <span class="sub-status"><span class="dot"></span>${escapeHtml(statusLabel(status))}</span>
+      </a>
+    `;
+  }
+
+  function renderEmpty() {
+    list.innerHTML = `
+      <div class="sub-empty">
+        <span class="glyph">∅</span>
+        Nenhuma submissão por enquanto.<br/>
+        Submissões abrem em <strong>01/06/2026</strong>.
+      </div>
+    `;
+  }
+
+  function renderError(msg) {
+    list.innerHTML = `
+      <div class="sub-error">
+        <span class="glyph">!</span>
+        Não foi possível carregar as submissões.<br/>
+        <small style="color: var(--fg-3);">${escapeHtml(msg)}</small><br/><br/>
+        <a href="https://github.com/${REPO}/issues?q=is%3Aissue+label%3Asubmissao" target="_blank" rel="noopener">ver direto no GitHub &rarr;</a>
+      </div>
+    `;
+  }
+
+  function updateStats(issues) {
+    const total = issues.length;
+    const open = issues.filter(i => i.state === 'open').length;
+    const finalists = issues.filter(i =>
+      i.labels.some(l => (typeof l === 'string' ? l : l.name).toLowerCase() === 'finalista')
+    ).length;
+    $('stat-total').textContent = String(total);
+    $('stat-open').textContent = String(open);
+    $('stat-finalists').textContent = String(finalists);
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(API, {
+        headers: { 'Accept': 'application/vnd.github+json' },
+      });
+      if (!res.ok) {
+        if (res.status === 403) {
+          throw new Error('Rate limit do GitHub atingido (60/h por IP). Tente em 1 hora ou veja direto na aba Issues.');
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const issues = (await res.json()).filter(i => !i.pull_request);
+      updateStats(issues);
+      if (issues.length === 0) {
+        renderEmpty();
+        return;
+      }
+      list.innerHTML = issues.map(renderCard).join('');
+    } catch (e) {
+      renderError(e.message || String(e));
+    }
+  }
+
+  // typewriter on prompt cmd
+  const cmdEl = $('prompt-cmd');
+  if (cmdEl) {
+    const full = cmdEl.textContent;
+    cmdEl.textContent = '';
+    let i = 0;
+    const type = () => {
+      if (i <= full.length) {
+        cmdEl.textContent = full.slice(0, i);
+        i++;
+        setTimeout(type, 35 + Math.random() * 25);
+      }
+    };
+    setTimeout(type, 200);
+  }
+
+  // r = reload, esc = back
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'r' || e.key === 'R') { load(); }
+    if (e.key === 'Escape') { window.location.href = '../'; }
+  });
+
+  load();
+})();
+</script>
+
+</body>
+</html>

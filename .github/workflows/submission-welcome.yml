@@ -1,0 +1,52 @@
+name: Submission Welcome
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  welcome:
+    if: contains(github.event.issue.labels.*.name, 'submissao')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post welcome comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const user = context.payload.issue.user.login;
+            const number = context.payload.issue.number;
+
+            const body = [
+              '> received',
+              '',
+              `Sua submissão entrou no histórico do **git show 2026**, @${user}.`,
+              '',
+              '```yaml',
+              `tracking:    #${number}`,
+              'status:      aguardando-triagem',
+              'editável:    até 20/06/2026 23:59',
+              '```',
+              '',
+              '**O que acontece agora:**',
+              '',
+              '- ▸ **agora** um bot valida criação do repo, número de commits e distribuição de datas. Resultado posta neste mesmo thread em alguns minutos.',
+              '- ▸ **21/06 → 22/06** triagem técnica humana pela comissão DATI.',
+              '- ▸ **até 27/06** anúncio dos Top Commits (finalistas) em [@dati.univates](https://instagram.com/dati.univates).',
+              '- ▸ **02/07** Demo Day presencial na Arena do Tecnovates.',
+              '',
+              'Você pode editar essa issue até **20/06/2026** se algo precisar de ajuste — basta clicar nos três pontos no canto superior direito da issue e selecionar "Edit". Depois desse prazo ela trava pra triagem.',
+              '',
+              'Boa sorte. Que vença o melhor commit.',
+              '',
+              '— **DATI** · git show 2026',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: number,
+              body,
+            });
