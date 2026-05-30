@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="description" content="Dashboard interno de triagem do git show 2026." />
+<title>Triagem · git show 2026 · DATI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0c0c'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='%2379f2c5'%3E%3E_%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+
+<!-- =========================================================
+     TOP STATUS BAR
+     ========================================================= -->
+<div class="bar-top" role="banner" aria-label="terminal status">
+  <span><span class="prompt-host">dati@univates</span><span class="prompt-cmd">:</span><span class="prompt-path">~/eventos/git-show/triagem</span><span class="prompt-cmd"> $ </span><span class="prompt-cmd" id="prompt-cmd">git triage --all --json | jq</span><span class="prompt-cmd"><span class="blink">_</span></span></span>
+  <span class="center">[ triagem.md · uso interno · não indexado ]</span>
+  <span class="right">
+    <span class="pill"><span class="dot"></span><span class="label" id="last-fetch">live</span></span>
+  </span>
+</div>
+
+<main>
+
+  <section class="hero" style="padding: clamp(1.5rem, 4vw, 3rem) 0 clamp(1.5rem, 4vw, 2.5rem); border-bottom: 1px solid var(--line);">
+    <div class="hero-prompt"><span class="glyph">$</span> git triage <span class="path">--list --filter</span></div>
+    <h1 class="hero-title" style="font-size: clamp(2.2rem, 7vw, 4.5rem);"><span class="gt">&gt;</span> triagem<span class="cursor" aria-hidden="true"></span></h1>
+    <p class="hero-sub" style="font-size: clamp(0.95rem, 1.8vw, 1.2rem); max-width: 60ch;">Dashboard interno da comissão. Lista todas as submissões via GitHub API, com filtros, busca, sort e exportação CSV. Página não indexada (<code style="color:var(--head);background:transparent;border:none;padding:0;">noindex</code>) mas o conteúdo é público (issues abertas).</p>
+    <div class="hero-cta">
+      <a href="../" class="btn">&larr; voltar pro regulamento</a>
+      <a href="../submissoes/" class="btn">vitrine pública /submissoes</a>
+      <a href="https://github.com/jeferson-scheibler/git-show-dati/issues?q=is%3Aissue+label%3Asubmissao" class="btn" target="_blank" rel="noopener">abrir no GitHub</a>
+    </div>
+  </section>
+
+  <section class="scene reveal in" style="margin-top: clamp(1.5rem, 3vw, 2rem);">
+
+    <!-- stats / filter chips (clicar filtra por aquele status) -->
+    <div class="triage-stats" id="stats" aria-label="filtros por status">
+      <button class="stat active" data-filter="all">
+        <span class="num" data-stat="all">—</span>
+        <span class="lbl">total</span>
+      </button>
+      <button class="stat" data-filter="aguardando-triagem">
+        <span class="num" data-stat="aguardando-triagem">—</span>
+        <span class="lbl">aguardando</span>
+      </button>
+      <button class="stat" data-filter="validacao-passou">
+        <span class="num" data-stat="validacao-passou">—</span>
+        <span class="lbl">val. ok</span>
+      </button>
+      <button class="stat" data-filter="validacao-falhou">
+        <span class="num" data-stat="validacao-falhou">—</span>
+        <span class="lbl">val. falhou</span>
+      </button>
+      <button class="stat" data-filter="aprovada">
+        <span class="num" data-stat="aprovada">—</span>
+        <span class="lbl">aprovadas</span>
+      </button>
+      <button class="stat" data-filter="finalista">
+        <span class="num" data-stat="finalista">—</span>
+        <span class="lbl">finalistas</span>
+      </button>
+      <button class="stat" data-filter="descartada">
+        <span class="num" data-stat="descartada">—</span>
+        <span class="lbl">descartadas</span>
+      </button>
+    </div>
+
+    <!-- controls -->
+    <div class="triage-controls">
+      <input type="search" id="search" placeholder="buscar por título, autor ou repo..." autocomplete="off" />
+      <select id="sort" aria-label="ordenar por">
+        <option value="created-desc">mais recentes primeiro</option>
+        <option value="created-asc">mais antigas primeiro</option>
+        <option value="updated-desc">atualizadas recentemente</option>
+        <option value="title-asc">título A→Z</option>
+        <option value="title-desc">título Z→A</option>
+        <option value="comments-desc">mais comentadas</option>
+      </select>
+      <button class="btn" id="export-all" type="button">exportar CSV</button>
+    </div>
+
+    <!-- bulk bar (visivel quando algo selecionado) -->
+    <div class="triage-bulkbar" id="bulkbar">
+      <span><span class="count" id="bulk-count">0</span> selecionada(s)</span>
+      <span class="spacer"></span>
+      <button type="button" data-action="copy-authors">copiar autores</button>
+      <button type="button" data-action="copy-urls">copiar URLs dos repos</button>
+      <button type="button" data-action="export-csv">exportar CSV</button>
+      <button type="button" data-action="clear">limpar seleção</button>
+    </div>
+
+    <!-- tabela -->
+    <div class="triage-table-wrap">
+      <table class="triage-table" id="table">
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" id="check-all" aria-label="selecionar tudo" /></th>
+            <th class="sortable" data-sort="number">#<span class="arrow">↕</span></th>
+            <th class="sortable" data-sort="title">projeto<span class="arrow">↕</span></th>
+            <th>autor</th>
+            <th>repo</th>
+            <th>validação</th>
+            <th class="sortable" data-sort="created">idade<span class="arrow">↕</span></th>
+            <th>labels</th>
+            <th class="sortable" data-sort="comments">coms<span class="arrow">↕</span></th>
+            <th>abrir</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="10" class="triage-empty"><span class="glyph">_</span>carregando submissões...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="prose" style="font-size: 0.85rem; color: var(--fg-3); margin-top: 1rem;">
+      Atalhos: <code>/</code> foca busca · <code>e</code> exporta CSV · <code>1–7</code> filtra por status · <code>r</code> recarrega
+    </p>
+
+  </section>
+
+</main>
+
+<div class="triage-toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="bar-bottom" role="contentinfo" aria-label="status">
+  <span class="mode">TRIAGE</span>
+  <span class="where">~/eventos/git-show/<span id="where-section">triagem/index.html</span> · <span class="sha" id="where-sha">internal</span></span>
+  <span class="info">
+    <span class="key">/</span> buscar · <span class="key">e</span> csv · <span class="key">r</span> reload
+  </span>
+</div>
+
+<script>
+(function () {
+  const REPO = 'jeferson-scheibler/git-show-dati';
+  const API_BASE = `https://api.github.com/repos/${REPO}/issues`;
+
+  const $ = (id) => document.getElementById(id);
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  let allIssues = [];
+  let view = [];
+  let currentFilter = 'all';
+  let currentSort = 'created-desc';
+  let currentSearch = '';
+  const selected = new Set();
+
+  // ---------- helpers ----------
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+
+  const cleanTitle = (raw) => {
+    if (!raw) return 'Submissão sem título';
+    const t = raw.replace(/^\s*\[submiss[ãa]o\]\s*/i, '').trim();
+    return t.length ? t : 'Submissão sem título';
+  };
+
+  const labelNames = (issue) =>
+    issue.labels.map(l => (typeof l === 'string' ? l : l.name).toLowerCase());
+
+  const validationStatus = (labels) => {
+    if (labels.includes('validacao-passou')) return 'ok';
+    if (labels.includes('validacao-falhou')) return 'fail';
+    return 'pending';
+  };
+
+  const ageText = (dateStr) => {
+    const d = new Date(dateStr);
+    const diff = Math.floor((Date.now() - d) / 1000);
+    if (diff < 60) return 'agora';
+    if (diff < 3600) return `${Math.floor(diff/60)}min`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h`;
+    if (diff < 2592000) return `${Math.floor(diff/86400)}d`;
+    return d.toLocaleDateString('pt-BR');
+  };
+
+  // parse Issue Form fields from body markdown
+  const parseField = (body, label) => {
+    if (!body) return null;
+    const re = new RegExp(`###\\s*${label.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}\\s*\\n+\\s*([^\\n]+)`, 'i');
+    const m = body.match(re);
+    return m ? m[1].trim() : null;
+  };
+
+  const parseAuthors = (body) => {
+    const field = parseField(body, 'Autor\\(es\\)') || '';
+    const handles = Array.from(field.matchAll(/@([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}[A-Za-z0-9])?)/g)).map(m => m[1]);
+    return handles;
+  };
+
+  const parseRepoUrl = (body) => {
+    const field = parseField(body, 'URL do reposit[óo]rio no GitHub');
+    if (!field) return null;
+    return field.replace(/[.,;]$/, '');
+  };
+
+  const parseCourses = (body) => parseField(body, 'Curso\\(s\\) dos autores') || '';
+  const parseType = (body) => parseField(body, 'Tipo de submiss[ãa]o') || '';
+
+  // toast
+  let toastTimer = null;
+  const toast = (msg) => {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('visible'), 2200);
+  };
+
+  // ---------- data ----------
+  async function load() {
+    const tbody = $('tbody');
+    tbody.innerHTML = `<tr><td colspan="10" class="triage-empty"><span class="glyph">_</span>carregando submissões...</td></tr>`;
+    try {
+      const issues = await ghPaginate(`${API_BASE}?labels=submissao&state=all&per_page=100`);
+      allIssues = issues.filter(i => !i.pull_request).map(decorate);
+      $('last-fetch').textContent = `atualizado ${new Date().toLocaleTimeString('pt-BR')}`;
+      computeStats();
+      render();
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="10" class="triage-empty"><span class="glyph" style="color:var(--rem);">!</span>${escapeHtml(e.message || String(e))}<br/><br/><a href="https://github.com/${REPO}/issues?q=is%3Aissue+label%3Asubmissao" target="_blank" rel="noopener">abrir direto no GitHub &rarr;</a></td></tr>`;
+    }
+  }
+
+  async function ghPaginate(url) {
+    const out = [];
+    let next = url;
+    while (next) {
+      const res = await fetch(next, { headers: { 'Accept': 'application/vnd.github+json' } });
+      if (!res.ok) {
+        if (res.status === 403) throw new Error('Rate limit do GitHub atingido (60/h por IP). Aguarde 1 hora ou faça login no GitHub no navegador.');
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      out.push(...data);
+      const link = res.headers.get('Link') || '';
+      const m = link.match(/<([^>]+)>;\s*rel="next"/);
+      next = m ? m[1] : null;
+    }
+    return out;
+  }
+
+  function decorate(issue) {
+    const labels = labelNames(issue);
+    return {
+      ...issue,
+      _labels: labels,
+      _validation: validationStatus(labels),
+      _title: cleanTitle(issue.title),
+      _authors: parseAuthors(issue.body),
+      _repoUrl: parseRepoUrl(issue.body),
+      _courses: parseCourses(issue.body),
+      _type: parseType(issue.body),
+    };
+  }
+
+  // ---------- stats ----------
+  function computeStats() {
+    const counts = { all: allIssues.length };
+    ['aguardando-triagem','validacao-passou','validacao-falhou','aprovada','finalista','descartada'].forEach(lbl => {
+      counts[lbl] = allIssues.filter(i => i._labels.includes(lbl)).length;
+    });
+    Object.entries(counts).forEach(([k, v]) => {
+      const el = document.querySelector(`[data-stat="${k}"]`);
+      if (el) el.textContent = String(v);
+    });
+  }
+
+  // ---------- filtering / sorting ----------
+  function applyFilters() {
+    let v = allIssues.slice();
+    if (currentFilter !== 'all') {
+      v = v.filter(i => i._labels.includes(currentFilter));
+    }
+    if (currentSearch) {
+      const q = currentSearch.toLowerCase();
+      v = v.filter(i =>
+        i._title.toLowerCase().includes(q) ||
+        i.user.login.toLowerCase().includes(q) ||
+        (i._authors || []).some(a => a.toLowerCase().includes(q)) ||
+        (i._repoUrl || '').toLowerCase().includes(q)
+      );
+    }
+    const sorters = {
+      'created-desc': (a, b) => new Date(b.created_at) - new Date(a.created_at),
+      'created-asc':  (a, b) => new Date(a.created_at) - new Date(b.created_at),
+      'updated-desc': (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+      'title-asc':    (a, b) => a._title.localeCompare(b._title, 'pt-BR'),
+      'title-desc':   (a, b) => b._title.localeCompare(a._title, 'pt-BR'),
+      'comments-desc':(a, b) => b.comments - a.comments,
+    };
+    v.sort(sorters[currentSort] || sorters['created-desc']);
+    view = v;
+  }
+
+  // ---------- rendering ----------
+  function render() {
+    applyFilters();
+    const tbody = $('tbody');
+    if (view.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="triage-empty"><span class="glyph">∅</span>nada bate com os filtros atuais.</td></tr>`;
+      updateBulk();
+      return;
+    }
+    tbody.innerHTML = view.map(rowHtml).join('');
+    // bind checkboxes
+    $$('#tbody input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', onRowCheck);
+    });
+    updateBulk();
+  }
+
+  function rowHtml(issue) {
+    const isSelected = selected.has(issue.number);
+    const valBadge = ({
+      ok: '<span class="v-ok">✓ passou</span>',
+      fail: '<span class="v-fail">✗ falhou</span>',
+      pending: '<span class="v-pending">— pendente</span>',
+    })[issue._validation];
+    const repoLink = issue._repoUrl
+      ? `<a href="${escapeHtml(issue._repoUrl)}" target="_blank" rel="noopener">${escapeHtml(issue._repoUrl.replace(/^https?:\/\/(www\.)?github\.com\//, ''))}</a>`
+      : '<span style="color: var(--fg-3);">não informado</span>';
+    const labelsHtml = issue._labels
+      .filter(l => l !== 'submissao')
+      .map(l => `<span class="lbl-chip" data-label="${escapeHtml(l)}">${escapeHtml(l)}</span>`)
+      .join('');
+    const courses = issue._courses ? `<span class="sub">${escapeHtml(issue._courses)} · ${escapeHtml(issue._type)}</span>` : '';
+
+    return `
+      <tr class="${isSelected ? 'selected' : ''}" data-num="${issue.number}">
+        <td class="col-check"><input type="checkbox" data-num="${issue.number}" ${isSelected ? 'checked' : ''} /></td>
+        <td class="col-num">#${issue.number}</td>
+        <td class="col-title"><strong>${escapeHtml(issue._title)}</strong>${courses}</td>
+        <td class="col-author">@${escapeHtml(issue.user.login)}</td>
+        <td class="col-repo">${repoLink}</td>
+        <td class="col-val">${valBadge}</td>
+        <td class="col-age">${ageText(issue.created_at)}</td>
+        <td class="col-labels">${labelsHtml}</td>
+        <td class="col-coms">${issue.comments}</td>
+        <td class="col-open"><a href="${escapeHtml(issue.html_url)}" target="_blank" rel="noopener">abrir &rarr;</a></td>
+      </tr>
+    `;
+  }
+
+  // ---------- selection ----------
+  function onRowCheck(e) {
+    const num = Number(e.target.dataset.num);
+    if (e.target.checked) selected.add(num);
+    else selected.delete(num);
+    const tr = e.target.closest('tr');
+    if (tr) tr.classList.toggle('selected', e.target.checked);
+    updateBulk();
+  }
+
+  function updateBulk() {
+    const bar = $('bulkbar');
+    $('bulk-count').textContent = String(selected.size);
+    bar.classList.toggle('visible', selected.size > 0);
+
+    const total = view.length;
+    const visibleSelected = view.filter(i => selected.has(i.number)).length;
+    const all = $('check-all');
+    if (all) {
+      all.checked = total > 0 && visibleSelected === total;
+      all.indeterminate = visibleSelected > 0 && visibleSelected < total;
+    }
+  }
+
+  // ---------- bulk actions ----------
+  function getSelectedIssues() {
+    return allIssues.filter(i => selected.has(i.number));
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(
+      () => toast('copiado pra clipboard'),
+      () => toast('falha ao copiar')
+    );
+  }
+
+  function bulkAction(action) {
+    const issues = action === 'export-csv' && selected.size === 0 ? view : getSelectedIssues();
+    if (action === 'copy-authors') {
+      const handles = new Set();
+      issues.forEach(i => {
+        handles.add(i.user.login);
+        (i._authors || []).forEach(a => handles.add(a));
+      });
+      copyText(Array.from(handles).map(h => `@${h}`).join(' '));
+    } else if (action === 'copy-urls') {
+      const urls = issues.map(i => i._repoUrl).filter(Boolean);
+      copyText(urls.join('\n'));
+    } else if (action === 'export-csv') {
+      exportCsv(issues);
+    } else if (action === 'clear') {
+      selected.clear();
+      render();
+    }
+  }
+
+  function exportCsv(issues) {
+    const headers = ['numero','titulo','autor_issue','autores_listados','repo_url','curso','tipo','validacao','criada_em','atualizada_em','comentarios','labels','issue_url'];
+    const escape = (v) => {
+      const s = String(v ?? '');
+      if (/[",\n;]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+    const rows = issues.map(i => [
+      i.number,
+      i._title,
+      i.user.login,
+      (i._authors || []).join(' '),
+      i._repoUrl || '',
+      i._courses,
+      i._type,
+      i._validation,
+      i.created_at,
+      i.updated_at,
+      i.comments,
+      i._labels.join('|'),
+      i.html_url,
+    ].map(escape).join(','));
+    const csv = '﻿' + headers.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `git-show-2026-submissoes-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast(`csv exportado (${issues.length} linha${issues.length === 1 ? '' : 's'})`);
+  }
+
+  // ---------- event wiring ----------
+  $$('#stats .stat').forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      $$('#stats .stat').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
+
+  $('search').addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    render();
+  });
+
+  $('sort').addEventListener('change', (e) => {
+    currentSort = e.target.value;
+    render();
+  });
+
+  $$('.triage-table thead th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      const map = {
+        'number':   { asc: (a,b) => a.number - b.number,    desc: (a,b) => b.number - a.number },
+        'title':    { asc: 'title-asc',   desc: 'title-desc' },
+        'created':  { asc: 'created-asc', desc: 'created-desc' },
+        'comments': { asc: (a,b) => a.comments - b.comments, desc: 'comments-desc' },
+      };
+      const current = currentSort;
+      const opts = map[key];
+      if (!opts) return;
+      if (typeof opts.desc === 'string') {
+        currentSort = current === opts.desc ? opts.asc : opts.desc;
+      } else {
+        // custom comparators (number)
+        currentSort = current === 'custom-' + key + '-desc' ? 'custom-' + key + '-asc' : 'custom-' + key + '-desc';
+        const isDesc = currentSort.endsWith('-desc');
+        const sorter = isDesc ? opts.desc : opts.asc;
+        const dropdown = $('sort');
+        dropdown.value = '';
+        // store sorter inline
+        applyFilters = (function (origFilter) {
+          return function () {
+            let v = allIssues.slice();
+            if (currentFilter !== 'all') v = v.filter(i => i._labels.includes(currentFilter));
+            if (currentSearch) {
+              const q = currentSearch.toLowerCase();
+              v = v.filter(i => i._title.toLowerCase().includes(q) || i.user.login.toLowerCase().includes(q) || (i._authors||[]).some(a => a.toLowerCase().includes(q)) || (i._repoUrl||'').toLowerCase().includes(q));
+            }
+            v.sort(sorter);
+            view = v;
+          };
+        })();
+      }
+      render();
+    });
+  });
+
+  $('check-all').addEventListener('change', (e) => {
+    if (e.target.checked) view.forEach(i => selected.add(i.number));
+    else view.forEach(i => selected.delete(i.number));
+    render();
+  });
+
+  $('export-all').addEventListener('click', () => exportCsv(view));
+
+  $$('#bulkbar button').forEach(btn => {
+    btn.addEventListener('click', () => bulkAction(btn.dataset.action));
+  });
+
+  // keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') {
+      if (e.key === 'Escape') e.target.blur();
+      return;
+    }
+    if (e.key === '/') { e.preventDefault(); $('search').focus(); return; }
+    if (e.key === 'e' || e.key === 'E') { exportCsv(selected.size > 0 ? getSelectedIssues() : view); return; }
+    if (e.key === 'r' || e.key === 'R') { load(); return; }
+    if (/^[1-7]$/.test(e.key)) {
+      const stats = $$('#stats .stat');
+      const idx = parseInt(e.key, 10) - 1;
+      if (stats[idx]) stats[idx].click();
+    }
+  });
+
+  // typewriter prompt
+  const cmdEl = $('prompt-cmd');
+  if (cmdEl) {
+    const full = cmdEl.textContent;
+    cmdEl.textContent = '';
+    let i = 0;
+    (function type() {
+      if (i <= full.length) {
+        cmdEl.textContent = full.slice(0, i++);
+        setTimeout(type, 35 + Math.random() * 25);
+      }
+    })();
+  }
+
+  load();
+})();
+</script>
+
+</body>
+</html>

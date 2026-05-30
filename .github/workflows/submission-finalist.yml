@@ -1,0 +1,79 @@
+name: Submission Finalist Announce
+
+# Dispara quando a comissao aplica a label "finalista" em uma issue de
+# submissao. Posta um comentario celebratorio pingando os autores e
+# resumindo os proximos passos do Demo Day.
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  announce:
+    if: github.event.label.name == 'finalista'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce finalist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+
+            // Stripe "[Submissão] " prefix from title to get the project name
+            const projectName = (issue.title || '').replace(/^\s*\[submiss[ãa]o\]\s*/i, '').trim() || 'sem título';
+
+            // Parse author handles from the "Autor(es)" form field
+            const authorsMatch = body.match(/###\s*Autor\(?es\)?\s*\n+\s*([^\n]+)/i);
+            const handlesFromField = authorsMatch
+              ? Array.from(authorsMatch[1].matchAll(/@([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}[A-Za-z0-9])?)/g)).map(m => m[1])
+              : [];
+
+            // Fallback: at least ping the issue opener
+            const allHandles = Array.from(new Set([issue.user.login, ...handlesFromField]));
+            const pings = allHandles.map(h => `@${h}`).join(' ');
+
+            const criteriaUrl = 'https://jeferson-scheibler.github.io/git-show-dati/#criterios';
+            const dropDate = '02/07/2026';
+            const venue = 'Arena do Tecnovates';
+
+            const commentBody = [
+              '> top commit · finalista 2026',
+              '',
+              `Parabéns, ${pings}.`,
+              '',
+              `O projeto **${projectName}** foi selecionado como **Top Commit** da 1ª edição do git show.`,
+              '',
+              `Vocês estão entre os até 5 finalistas que apresentam ao vivo no **Demo Day · ${dropDate} · ${venue}**.`,
+              '',
+              '```yaml',
+              'status:       top-commit-2026',
+              'next:         detalhes da noite enviados em ate 48h',
+              'formato:      pitch ao vivo + demo + perguntas da banca',
+              'duracao:      ~10min por finalista (5 pitch + 5 banca)',
+              '```',
+              '',
+              '**Como se preparar:**',
+              '- demo rodando de verdade, não depende de internet flaky no local',
+              '- saber explicar trechos do próprio código se a banca perguntar',
+              '- revisar os critérios públicos antes da noite: <' + criteriaUrl + '>',
+              '- pensar em 1-2 frases sobre o que vocês fariam diferente se começassem hoje (cai sempre)',
+              '',
+              'A gente entra em contato pelos canais cadastrados em até 48h com agenda, ordem de apresentação e detalhes finais da noite. Qualquer dúvida, comenta aqui.',
+              '',
+              'Boa sorte. Que vença o melhor commit.',
+              '',
+              '— **DATI** · git show 2026',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: commentBody,
+            });
+
+            core.info(`Finalista anunciado: #${issue.number} (${projectName}) pingando ${allHandles.length} autor(es).`);

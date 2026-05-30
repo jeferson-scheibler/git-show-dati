@@ -1,0 +1,63 @@
+name: OG Image
+
+# Gera og-image.png (1200x630) com stats reais (submissoes, dias pro demo day,
+# finalistas) e commita de volta na main. Usa Playwright + Chromium em CI.
+#
+# Triggers:
+# - schedule: 1x ao dia (06:00 BRT)
+# - push: quando o template, script ou workflow muda
+# - workflow_dispatch: botao manual
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/og-template.html'
+      - '.github/scripts/generate-og.mjs'
+      - '.github/scripts/package.json'
+      - '.github/workflows/og-image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: og-image
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: .github/scripts
+        run: npm install --no-audit --no-fund --no-package-lock
+
+      - name: Install Chromium
+        working-directory: .github/scripts
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate OG image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/generate-og.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n $(git status --porcelain og-image.png) ]]; then
+            git add og-image.png
+            git commit -m "chore: update og-image with latest stats [skip ci]"
+            git push
+          else
+            echo "No changes to og-image.png"
+          fi

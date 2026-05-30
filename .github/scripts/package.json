@@ -1,0 +1,10 @@
+{
+  "name": "git-show-tooling",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Internal tooling for the git show 2026 site (OG image generation).",
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

@@ -1041,6 +1041,233 @@ section.scene {
 .sub-error .glyph { color: var(--rem); }
 @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
+/* ============= TRIAGEM DASHBOARD ============= */
+.triage-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0 1.5rem;
+}
+.triage-stats .stat {
+  padding: 0.85rem 1rem;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--hash);
+  cursor: pointer;
+  transition: border-left-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  text-align: left;
+  font-family: var(--mono);
+  color: inherit;
+}
+.triage-stats .stat:hover {
+  border-left-color: var(--head);
+  background: var(--bg-2);
+  transform: translateY(-2px);
+}
+.triage-stats .stat.active {
+  border-left-color: var(--head);
+  background: var(--head-dim);
+}
+.triage-stats .stat .num {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--head);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.triage-stats .stat .lbl {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--fg-3);
+  margin-top: 0.35rem;
+}
+
+.triage-controls {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  margin: 1rem 0;
+  align-items: center;
+}
+.triage-controls input[type="search"],
+.triage-controls select {
+  background: var(--bg-1);
+  border: 1px solid var(--line-strong);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.triage-controls input[type="search"]:focus,
+.triage-controls select:focus { border-color: var(--head); }
+.triage-controls input[type="search"]::placeholder { color: var(--fg-3); }
+
+.triage-bulkbar {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: var(--head-dim);
+  border: 1px solid var(--head);
+  margin-bottom: 1rem;
+  font-size: 13px;
+  color: var(--fg);
+}
+.triage-bulkbar.visible { display: flex; }
+.triage-bulkbar .count {
+  font-weight: 700;
+  color: var(--head);
+  font-variant-numeric: tabular-nums;
+}
+.triage-bulkbar button {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: all 0.15s ease;
+}
+.triage-bulkbar button:hover {
+  border-color: var(--head);
+  color: var(--head);
+  background: var(--bg);
+}
+.triage-bulkbar .spacer { flex: 1; }
+
+.triage-table-wrap {
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+.triage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 880px;
+}
+.triage-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-2);
+  color: var(--head);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  user-select: none;
+}
+.triage-table thead th.sortable { cursor: pointer; }
+.triage-table thead th.sortable:hover { color: var(--fg); }
+.triage-table thead th .arrow { color: var(--fg-3); margin-left: 0.3rem; }
+.triage-table thead th.sorted .arrow { color: var(--head); }
+.triage-table tbody tr {
+  border-bottom: 1px solid var(--line);
+  transition: background 0.15s ease;
+}
+.triage-table tbody tr:hover { background: var(--bg-2); }
+.triage-table tbody tr.selected { background: var(--head-dim); }
+.triage-table td {
+  padding: 0.65rem 0.85rem;
+  vertical-align: top;
+  color: var(--fg-1);
+}
+.triage-table td.col-check { width: 2.5rem; text-align: center; }
+.triage-table td.col-num { color: var(--hash); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.triage-table td.col-title strong { color: var(--fg); font-weight: 700; }
+.triage-table td.col-title .sub { display: block; color: var(--fg-3); font-size: 11px; margin-top: 0.2rem; }
+.triage-table td.col-author { color: var(--link); white-space: nowrap; }
+.triage-table td.col-repo a { font-size: 12px; }
+.triage-table td.col-val { white-space: nowrap; }
+.triage-table td.col-val .v-ok { color: var(--add); }
+.triage-table td.col-val .v-fail { color: var(--rem); }
+.triage-table td.col-val .v-pending { color: var(--fg-3); }
+.triage-table td.col-age { color: var(--fg-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.triage-table td.col-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.triage-table .lbl-chip {
+  font-size: 10px;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--line-strong);
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+.triage-table .lbl-chip[data-label="finalista"] { color: var(--head); border-color: var(--head); }
+.triage-table .lbl-chip[data-label="aprovada"] { color: var(--add); border-color: var(--add); }
+.triage-table .lbl-chip[data-label="descartada"] { color: var(--rem); border-color: var(--rem); }
+.triage-table .lbl-chip[data-label="validacao-passou"] { color: var(--add); border-color: var(--add); }
+.triage-table .lbl-chip[data-label="validacao-falhou"] { color: var(--rem); border-color: var(--rem); }
+.triage-table .lbl-chip[data-label="aguardando-triagem"] { color: var(--hash); border-color: var(--hash); }
+.triage-table .lbl-chip[data-label="janela-encerrada"] { color: var(--fg-2); border-color: var(--fg-3); }
+.triage-table td.col-coms { color: var(--fg-2); font-variant-numeric: tabular-nums; text-align: center; }
+.triage-table td.col-open a {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  font-size: 11px;
+  color: var(--fg-1);
+}
+.triage-table td.col-open a:hover { border-color: var(--head); color: var(--head); background: transparent; }
+
+.triage-table input[type="checkbox"] {
+  accent-color: var(--head);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.triage-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--fg-2);
+}
+.triage-empty .glyph {
+  display: block;
+  font-size: 2.2rem;
+  color: var(--hash);
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.triage-toast {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--head);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 0.6rem 1.25rem;
+  border: 1px solid var(--head);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 200;
+  letter-spacing: 0.03em;
+}
+.triage-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ============= RESPONSIVE ============= */
 @media (max-width: 720px) {
   html { font-size: 14px; }
@@ -1065,6 +1292,8 @@ section.scene {
   main { padding-bottom: 6rem; }
   .sub-card { grid-template-columns: auto 1fr; gap: 0.6rem 0.9rem; padding: 0.85rem 1rem; }
   .sub-card .sub-status { grid-column: 1 / -1; justify-self: start; }
+  .triage-controls { grid-template-columns: 1fr; }
+  .triage-stats .stat .num { font-size: 1.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

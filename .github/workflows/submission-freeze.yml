@@ -1,0 +1,138 @@
+name: Submission Freeze
+
+# Tranca todas as issues de submissão quando a janela encerra:
+# 20/06/2026 23:59 BRT  =  21/06/2026 02:59 UTC (BRT é UTC-3, sem horário de verão)
+#
+# Triggers:
+# - cron: dispara automaticamente no horário acima
+# - workflow_dispatch: permite trancar manualmente (botão "Run workflow")
+
+on:
+  schedule:
+    - cron: '59 2 21 6 *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Apenas listar o que seria trancado, sem aplicar'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  issues: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Freeze open submission issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const dryRun = context.payload.inputs && context.payload.inputs.dry_run === 'true';
+            core.info(dryRun ? 'DRY RUN: nada será modificado.' : 'Aplicando fechamento real.');
+
+            // Garante que o label janela-encerrada existe
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'janela-encerrada',
+                color: '4d4c48',
+                description: 'Issue trancada após o fim da janela de submissões',
+              });
+            } catch (e) {
+              if (e.status !== 422) throw e;
+            }
+
+            // Lista todas as issues abertas com label submissao (paginadas)
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'submissao',
+              state: 'open',
+              per_page: 100,
+            });
+            const targets = issues.filter(i => !i.pull_request);
+            core.info(`Encontradas ${targets.length} issues de submissão abertas.`);
+
+            if (targets.length === 0) {
+              core.info('Nada a trancar.');
+              return;
+            }
+
+            const closeBody = [
+              '> janela encerrada',
+              '',
+              'A janela de submissões do **git show 2026** foi encerrada em **20/06/2026 23:59**.',
+              '',
+              '```yaml',
+              'status:   triagem-em-andamento',
+              'comentarios:  travados',
+              'edicoes:      desencorajadas',
+              '```',
+              '',
+              'A partir de agora esta issue está **trancada para novos comentários**. A comissão DATI inicia a triagem técnica hoje (21/06) e finaliza até 22/06.',
+              '',
+              'Edições no corpo da issue ainda são tecnicamente possíveis pelo autor, mas a triagem **considera o estado da submissão no momento do fechamento**. Qualquer alteração após este comentário não conta.',
+              '',
+              'O anúncio dos finalistas (Top Commits) sai até **27/06** em [@dati.univates](https://instagram.com/dati.univates).',
+              '',
+              '— **DATI** · git show 2026',
+            ].join('\n');
+
+            let success = 0;
+            let failed = 0;
+
+            for (const issue of targets) {
+              core.info(`Processando #${issue.number}: ${issue.title}`);
+
+              if (dryRun) {
+                continue;
+              }
+
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: closeBody,
+                });
+
+                await github.rest.issues.lock({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  lock_reason: 'resolved',
+                });
+
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['janela-encerrada'],
+                });
+
+                // Remove aguardando-triagem se presente (agora está em triagem)
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: 'aguardando-triagem',
+                  });
+                } catch (e) {}
+
+                success++;
+              } catch (e) {
+                core.warning(`Falhou em #${issue.number}: ${e.message}`);
+                failed++;
+              }
+            }
+
+            const summary = `Fechamento concluído. Trancadas: ${success}. Falharam: ${failed}.${dryRun ? ' (dry run)' : ''}`;
+            core.info(summary);
+            await core.summary.addRaw(summary).write();

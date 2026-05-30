@@ -2,3 +2,9 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# OG image tooling (Node deps installed in CI, never committed)
+node_modules/
+.github/scripts/node_modules/
+.github/scripts/package-lock.json
+og-temp.html

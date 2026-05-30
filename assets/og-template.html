@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(ellipse 60% 40% at 18% 0%, rgba(121,242,197,0.10), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 92% 22%, rgba(111,168,255,0.09), transparent 60%),
+      radial-gradient(ellipse 70% 30% at 50% 100%, rgba(121,242,197,0.05), transparent 60%),
+      #000000;
+    color: #e9e7e1;
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-feature-settings: "calt" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  /* subtle scanlines */
+  body::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 16px 40px;
+    font-size: 14px;
+    color: #76746e;
+    border-bottom: 1px solid #1f2838;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 0.02em;
+  }
+  .topbar .left { display: flex; align-items: center; gap: 8px; }
+  .topbar .host { color: #79f2c5; display: flex; align-items: center; gap: 8px; }
+  .topbar .host::before {
+    content: "";
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #79f2c5;
+    box-shadow: 0 0 10px rgba(121,242,197,0.6);
+  }
+  .topbar .path { color: #6fa8ff; }
+  .topbar .right {
+    border: 1px solid #2e3a52;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #b6b4ae;
+  }
+  .topbar .right .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: #4ec264; box-shadow: 0 0 6px rgba(78,194,100,0.6);
+    margin-right: 6px; vertical-align: 1px;
+  }
+
+  main {
+    padding: 95px 60px 50px 60px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .prompt {
+    color: #76746e;
+    font-size: 18px;
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+  }
+  .prompt .glyph { color: #79f2c5; font-weight: 700; }
+  .prompt .path { color: #6fa8ff; }
+
+  .title {
+    font-size: 168px;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 0.85;
+    margin-bottom: 26px;
+    white-space: nowrap;
+  }
+  .title .gt {
+    color: #79f2c5;
+    text-shadow: 0 0 28px rgba(121,242,197,0.5);
+  }
+
+  .sub {
+    font-size: 22px;
+    color: #b6b4ae;
+    margin-bottom: 38px;
+    line-height: 1.35;
+    max-width: 720px;
+  }
+  .sub .hl {
+    color: #4ec264;
+    background: rgba(78,194,100,0.10);
+    padding: 0 4px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 8px;
+  }
+  .stat {
+    padding: 14px 22px;
+    border: 1px solid #1f2838;
+    background: rgba(11, 15, 23, 0.55);
+    border-left: 3px solid #6fa8ff;
+    min-width: 140px;
+  }
+  .stat.accent { border-left-color: #79f2c5; }
+  .stat .num {
+    font-size: 44px;
+    font-weight: 800;
+    color: #79f2c5;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .lbl {
+    font-size: 11px;
+    color: #76746e;
+    margin-top: 8px;
+    letter-spacing: 0.12em;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 22px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    border-top: 1px solid #1f2838;
+    padding-top: 16px;
+    color: #76746e;
+    letter-spacing: 0.03em;
+  }
+  .footer .left .mode {
+    background: #79f2c5;
+    color: #000;
+    font-weight: 700;
+    padding: 2px 10px;
+    letter-spacing: 0.1em;
+    margin-right: 10px;
+  }
+  .footer .right {
+    color: #79f2c5;
+    font-weight: 700;
+  }
+  .footer .right .sep { color: #76746e; margin: 0 8px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <span class="host">dati@univates</span>
+    <span>:</span>
+    <span class="path">~/eventos/git-show</span>
+    <span>$ git show v1.0.0</span>
+  </div>
+  <div class="right">
+    <span class="dot"></span>1ª edição
+  </div>
+</div>
+
+<main>
+  <div class="prompt"><span class="glyph">$</span> cat <span class="path">README.md</span></div>
+  <div class="title"><span class="gt">&gt;</span> git show</div>
+  <div class="sub">A vitrine dos projetos pessoais e acadêmicos dos alunos de <span class="hl">Engenharia de Software</span> e <span class="hl">Engenharia da Computação</span> da UNIVATES.</div>
+
+  <div class="stats">
+    <div class="stat accent">
+      <div class="num">{{SUBMISSIONS_COUNT}}</div>
+      <div class="lbl">submissões</div>
+    </div>
+    <div class="stat">
+      <div class="num">{{DAYS_REMAINING}}</div>
+      <div class="lbl">dias pro demo day</div>
+    </div>
+    <div class="stat accent">
+      <div class="num">{{FINALISTS_COUNT}}</div>
+      <div class="lbl">top commits</div>
+    </div>
+  </div>
+</main>
+
+<div class="footer">
+  <div class="left">
+    <span class="mode">DEMO DAY</span>
+    <span>02/07/2026 · Arena do Tecnovates</span>
+  </div>
+  <div class="right">
+    git-show-dati<span class="sep">·</span>DATI<span class="sep">·</span>UNIVATES
+  </div>
+</div>
+
+</body>
+</html>
