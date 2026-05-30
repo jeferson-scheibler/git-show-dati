@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   validate:
-    if: contains(github.event.issue.labels.*.name, 'submissao')
     runs-on: ubuntu-latest
     steps:
       - name: Validate repository and report
@@ -17,11 +16,36 @@ jobs:
         with:
           script: |
             const issue = context.payload.issue;
+
+            // Match only submissions (title starts with [Submissão] / [Submissao])
+            if (!/^\s*\[submiss(ã|a)o\]/i.test(issue.title)) {
+              core.info('Not a submission issue, skipping.');
+              return;
+            }
+
             const body = issue.body || '';
 
             // ----- helpers -----
             const fmt = (ok, label, detail) =>
               `- ${ok ? '✅' : '❌'} **${label}**${detail ? ` — ${detail}` : ''}`;
+
+            const swapLabels = async (target) => {
+              const other = target === 'validacao-passou' ? 'validacao-falhou' : 'validacao-passou';
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: other,
+                });
+              } catch (e) {}
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: [target],
+              });
+            };
 
             const fail = async (reasons) => {
               const msg = [
@@ -41,20 +65,7 @@ jobs:
                 issue_number: issue.number,
                 body: msg,
               });
-              try {
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  name: 'validacao-passou',
-                });
-              } catch (e) {}
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                labels: ['validacao-falhou'],
-              });
+              await swapLabels('validacao-falhou');
             };
 
             // ----- parse repo URL from issue body -----
@@ -140,20 +151,4 @@ jobs:
               body: lines.join('\n'),
             });
 
-            // ----- swap labels based on result -----
-            const targetLabel = allOk ? 'validacao-passou' : 'validacao-falhou';
-            const otherLabel = allOk ? 'validacao-falhou' : 'validacao-passou';
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                name: otherLabel,
-              });
-            } catch (e) {}
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              labels: [targetLabel],
-            });
+            await swapLabels(allOk ? 'validacao-passou' : 'validacao-falhou');

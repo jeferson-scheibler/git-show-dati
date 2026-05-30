@@ -9,16 +9,53 @@ permissions:
 
 jobs:
   welcome:
-    if: contains(github.event.issue.labels.*.name, 'submissao')
     runs-on: ubuntu-latest
     steps:
-      - name: Post welcome comment
+      - name: Welcome and label
         uses: actions/github-script@v7
         with:
           script: |
-            const user = context.payload.issue.user.login;
-            const number = context.payload.issue.number;
+            const issue = context.payload.issue;
 
+            // Match only submissions (title starts with [Submissão] / [Submissao])
+            if (!/^\s*\[submiss(ã|a)o\]/i.test(issue.title)) {
+              core.info('Not a submission issue, skipping.');
+              return;
+            }
+
+            // ----- ensure repo labels exist -----
+            const labels = [
+              { name: 'submissao',          color: '79f2c5', description: 'Submissao de projeto pro git show 2026' },
+              { name: 'aguardando-triagem', color: '6fa8ff', description: 'Aguardando triagem tecnica da comissao DATI' },
+              { name: 'validacao-passou',   color: '4ec264', description: 'Passou na validacao automatica do bot' },
+              { name: 'validacao-falhou',   color: 'ff5d5d', description: 'Falhou na validacao automatica do bot' },
+              { name: 'aprovada',           color: '4ec264', description: 'Aprovada na triagem tecnica humana' },
+              { name: 'finalista',          color: '79f2c5', description: 'Top Commit - finalista do git show 2026' },
+              { name: 'descartada',         color: 'ff5d5d', description: 'Descartada na triagem tecnica' },
+            ];
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...label,
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e; // 422 = already exists, ok
+              }
+            }
+
+            // ----- apply labels to the issue (template silently skips if labels didnt exist yet) -----
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: ['submissao', 'aguardando-triagem'],
+            });
+
+            // ----- compose welcome comment -----
+            const user = issue.user.login;
+            const number = issue.number;
             const body = [
               '> received',
               '',
@@ -27,7 +64,7 @@ jobs:
               '```yaml',
               `tracking:    #${number}`,
               'status:      aguardando-triagem',
-              'editável:    até 20/06/2026 23:59',
+              'editavel:    ate 20/06/2026 23:59',
               '```',
               '',
               '**O que acontece agora:**',
@@ -37,7 +74,7 @@ jobs:
               '- ▸ **até 27/06** anúncio dos Top Commits (finalistas) em [@dati.univates](https://instagram.com/dati.univates).',
               '- ▸ **02/07** Demo Day presencial na Arena do Tecnovates.',
               '',
-              'Você pode editar essa issue até **20/06/2026** se algo precisar de ajuste — basta clicar nos três pontos no canto superior direito da issue e selecionar "Edit". Depois desse prazo ela trava pra triagem.',
+              'Você pode editar essa issue até **20/06/2026** se algo precisar de ajuste, basta clicar nos três pontos no canto superior direito da issue e selecionar "Edit". Depois desse prazo ela trava pra triagem.',
               '',
               'Boa sorte. Que vença o melhor commit.',
               '',
