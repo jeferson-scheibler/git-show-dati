@@ -1,5 +1,6 @@
 name: OG Image
 
+# v1.0.1 - force first trigger after workflow creation
 # Gera og-image.png (1200x630) com stats reais (submissoes, dias pro demo day,
 # finalistas) e commita de volta na main. Usa Playwright + Chromium em CI.
 #
