@@ -1,0 +1,125 @@
+name: Submissão · git show 2026
+description: Submeta seu projeto para a 1ª edição do git show. Leia o regulamento antes.
+title: "[Submissão] "
+labels:
+  - submissao
+  - aguardando-triagem
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### git show 2026 · submissão de projeto
+
+        Preencha os campos abaixo. Todos os marcados com asterisco (*) são obrigatórios. Submissões que não cumprem os itens do checklist são descartadas na triagem.
+
+        Regulamento completo: https://jeferson-scheibler.github.io/git-show-dati
+        Critérios de avaliação: https://jeferson-scheibler.github.io/git-show-dati/#criterios
+
+  - type: input
+    id: project_name
+    attributes:
+      label: Nome do projeto
+      placeholder: ex. Compilador de Lambda Cálculo em Rust
+    validations:
+      required: true
+
+  - type: input
+    id: repo_url
+    attributes:
+      label: URL do repositório no GitHub
+      description: Deve estar público, hospedado no GitHub, criado há pelo menos 30 dias antes desta submissão.
+      placeholder: https://github.com/seu-usuario/seu-projeto
+    validations:
+      required: true
+
+  - type: input
+    id: authors
+    attributes:
+      label: Autor(es)
+      description: Handle(s) do GitHub, separados por vírgula. Em grupo, lista todos. Pelo menos um precisa abrir a issue.
+      placeholder: "@maria, @joao, @ana"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: courses
+    attributes:
+      label: Curso(s) dos autores
+      description: Marque todos que se aplicam.
+      multiple: true
+      options:
+        - Engenharia de Software
+        - Engenharia da Computação
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project_type
+    attributes:
+      label: Tipo de submissão
+      description: "Cada aluno pode submeter até 2 projetos no total: 1 pessoal + 1 em grupo."
+      options:
+        - Projeto pessoal (1 autor)
+        - Projeto em grupo (2 ou mais autores)
+    validations:
+      required: true
+
+  - type: textarea
+    id: pitch
+    attributes:
+      label: Pitch em 1 a 3 frases
+      description: O que o projeto faz e por que ele importa. Pensa como se fosse o título de um post.
+      placeholder: Resolve X para Y, usando Z. Diferencial é A.
+    validations:
+      required: true
+
+  - type: input
+    id: stack
+    attributes:
+      label: Stack principal
+      description: Opcional. Linguagens, frameworks, bancos ou serviços que valem citar.
+      placeholder: "ex. Rust, Axum, PostgreSQL, Redis"
+    validations:
+      required: false
+
+  - type: input
+    id: demo_url
+    attributes:
+      label: Link da versão online
+      description: Opcional. Se o projeto roda em algum lugar acessível, deixa o link aqui.
+      placeholder: https://meu-projeto.exemplo.com
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: regulamento
+    attributes:
+      label: Checklist do regulamento
+      description: Marque todos os itens. Cada item não marcado é motivo de descarte na triagem técnica (até 22/06).
+      options:
+        - label: O repositório está público no GitHub
+          required: true
+        - label: Foi criado há pelo menos 30 dias antes desta submissão
+          required: true
+        - label: Tem pelo menos 10 commits distribuídos em ao menos 5 datas distintas
+          required: true
+        - label: Tem README.md com nome do projeto, descrição curta, stack, instruções de execução local e ao menos 1 screenshot, GIF ou link de versão online
+          required: true
+        - label: O código é majoritariamente autoral (uso de libs, frameworks, snippets e IA é normal, fork cosmético ou prompt único copiado não é)
+          required: true
+        - label: Vou manter o repositório público durante toda a submissão e até a final do evento (02/07/2026)
+          required: true
+        - label: Todos os autores estão regularmente matriculados em Engenharia de Software ou Engenharia da Computação na UNIVATES no semestre do evento
+          required: true
+        - label: Concordo com o regulamento e autorizo uso de nome, foto e descrição do projeto em material institucional do evento e do DATI
+          required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Observações
+      description: Opcional. Qualquer contexto extra que ajude a banca a entender o projeto.
+      placeholder: ex. Este projeto começou como trabalho de aula e evoluiu para...
+    validations:
+      required: false
