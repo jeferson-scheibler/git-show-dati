@@ -64,9 +64,12 @@ async function main() {
 
   const browser = await chromium.launch();
   try {
+    // deviceScaleFactor 1 -> output is exactly 1200x630, file ~150-200KB.
+    // WhatsApp (and many scrapers) prefer OG images under 300KB; using DPR 2
+    // produced a 2400x1260 PNG at ~430KB which WhatsApp silently rejected.
     const context = await browser.newContext({
       viewport: { width: 1200, height: 630 },
-      deviceScaleFactor: 2,
+      deviceScaleFactor: 1,
     });
     const page = await context.newPage();
     await page.goto('file://' + TEMP_PATH);
