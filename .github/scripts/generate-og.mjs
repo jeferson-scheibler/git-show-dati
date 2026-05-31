@@ -14,7 +14,7 @@ const REPO_ROOT = path.resolve(__dirname, '../..');
 const REPO = 'jeferson-scheibler/git-show-dati';
 const DEMO_DAY = new Date('2026-07-02T19:00:00-03:00');
 const TEMPLATE_PATH = path.join(REPO_ROOT, 'assets', 'og-template.html');
-const OUTPUT_PATH = path.join(REPO_ROOT, 'og-image.png');
+const OUTPUT_PATH = path.join(REPO_ROOT, 'og-image.jpg');
 const TEMP_PATH = path.join(REPO_ROOT, 'og-temp.html');
 
 async function fetchStats() {
@@ -77,9 +77,13 @@ async function main() {
     await page.evaluate(() => document.fonts.ready);
     // small extra wait so the radial gradients and CRT overlay rasterize cleanly
     await page.waitForTimeout(400);
+    // JPEG quality 92: WhatsApp/Facebook scraper rejeita PNG em varios
+    // casos silenciosamente. JPEG e universalmente aceito e fica bem menor
+    // (~50-80KB pro mesmo conteudo).
     await page.screenshot({
       path: OUTPUT_PATH,
-      type: 'png',
+      type: 'jpeg',
+      quality: 92,
       clip: { x: 0, y: 0, width: 1200, height: 630 },
     });
     console.log(`wrote ${OUTPUT_PATH}`);

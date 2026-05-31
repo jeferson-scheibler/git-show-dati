@@ -55,10 +55,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n $(git status --porcelain og-image.png) ]]; then
-            git add og-image.png
+          if [[ -n $(git status --porcelain og-image.jpg) ]]; then
+            git add og-image.jpg
             git commit -m "chore: update og-image with latest stats [skip ci]"
             git push
           else
-            echo "No changes to og-image.png"
+            echo "No changes to og-image.jpg"
           fi
