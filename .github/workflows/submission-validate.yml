@@ -3,6 +3,15 @@ name: Submission Validate
 on:
   issues:
     types: [opened, edited]
+  # Manual trigger: run against a specific issue number.
+  # Use this to re-validate a submission that was skipped (e.g. title had no prefix).
+  # Go to Actions -> Submission Validate -> Run workflow -> enter issue number.
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to validate (e.g. 3)'
+        required: true
+        type: string
 
 permissions:
   issues: write
@@ -15,12 +24,47 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issue = context.payload.issue;
+            // ----- resolve issue (from event or manual dispatch) -----
+            let issue;
+            if (context.eventName === 'workflow_dispatch') {
+              const num = parseInt(context.payload.inputs.issue_number, 10);
+              if (!num) { core.setFailed('issue_number invalido'); return; }
+              const r = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: num,
+              });
+              issue = r.data;
+            } else {
+              issue = context.payload.issue;
+            }
 
-            // Match only submissions (title starts with [Submissão] / [Submissao])
-            if (!/^\s*\[submiss(ã|a)o\]/i.test(issue.title)) {
-              core.info('Not a submission issue, skipping.');
+            // ----- match by label (primary) OR title prefix (fallback) -----
+            const issueLabels = (issue.labels || []).map(l => (typeof l === 'string' ? l : l.name).toLowerCase());
+            const hasLabel = issueLabels.includes('submissao');
+            const hasTitle = /^\s*\[submiss(ã|a)o\]/i.test(issue.title);
+            if (!hasLabel && !hasTitle) {
+              core.info('Not a submission issue (no label, no title prefix), skipping.');
               return;
+            }
+
+            // Ensure labels exist in repo (idempotent)
+            const labels = [
+              { name: 'submissao',          color: '79f2c5', description: 'Submissao de projeto pro git show 2026' },
+              { name: 'aguardando-triagem', color: '6fa8ff', description: 'Aguardando triagem tecnica da comissao DATI' },
+              { name: 'validacao-passou',   color: '4ec264', description: 'Passou na validacao automatica do bot' },
+              { name: 'validacao-falhou',   color: 'ff5d5d', description: 'Falhou na validacao automatica do bot' },
+            ];
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...label,
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e;
+              }
             }
 
             const body = issue.body || '';
@@ -81,7 +125,7 @@ jobs:
               return;
             }
             const owner = ghMatch[1];
-            const repo = ghMatch[2];
+            const repo  = ghMatch[2];
 
             // ----- fetch repo metadata -----
             let repoData;
@@ -96,13 +140,13 @@ jobs:
               return;
             }
 
-            const isPublic = !repoData.private;
-            const createdAt = new Date(repoData.created_at);
-            const now = new Date();
-            const ageDays = Math.floor((now - createdAt) / 86400000);
+            const isPublic    = !repoData.private;
+            const createdAt   = new Date(repoData.created_at);
+            const now         = new Date();
+            const ageDays     = Math.floor((now - createdAt) / 86400000);
             const isOldEnough = ageDays >= 30;
 
-            // ----- fetch commits (1 page = 100 max, enough for our checks) -----
+            // ----- fetch commits -----
             let commits = [];
             try {
               const c = await github.rest.repos.listCommits({ owner, repo, per_page: 100 });
@@ -112,28 +156,28 @@ jobs:
               return;
             }
 
-            const commitCount = commits.length;
+            const commitCount     = commits.length;
             const hasEnoughCommits = commitCount >= 10;
-            const distinctDates = new Set(
+            const distinctDates   = new Set(
               commits.map(c => (c.commit.author && c.commit.author.date) || c.commit.committer.date)
-                .filter(Boolean)
-                .map(d => d.slice(0, 10))
+                .filter(Boolean).map(d => d.slice(0, 10))
             );
             const distinctDatesCount = distinctDates.size;
-            const hasDistinctDates = distinctDatesCount >= 5;
+            const hasDistinctDates   = distinctDatesCount >= 5;
 
             // ----- compose report -----
             const allOk = isPublic && isOldEnough && hasEnoughCommits && hasDistinctDates;
+            const manual = context.eventName === 'workflow_dispatch' ? ' _(revalidação manual)_' : '';
 
             const lines = [
-              '> validacao automatica',
+              `> validacao automatica${manual}`,
               '',
               `Repositório verificado: [\`${owner}/${repo}\`](${repoData.html_url})`,
               '',
-              fmt(isPublic, 'público no GitHub', isPublic ? null : 'o repo está privado. Torne-o público.'),
-              fmt(isOldEnough, 'criado há pelo menos 30 dias', `criado há ${ageDays} dia(s) (${createdAt.toISOString().slice(0,10)})`),
-              fmt(hasEnoughCommits, 'pelo menos 10 commits', `${commitCount} commit(s) na branch padrão${commitCount >= 100 ? '+' : ''}`),
-              fmt(hasDistinctDates, 'commits em ao menos 5 datas distintas', `${distinctDatesCount} data(s) distinta(s) nos últimos 100 commits`),
+              fmt(isPublic,        'público no GitHub',                    isPublic ? null : 'o repo está privado. Torne-o público.'),
+              fmt(isOldEnough,     'criado há pelo menos 30 dias',         `criado há ${ageDays} dia(s) (${createdAt.toISOString().slice(0,10)})`),
+              fmt(hasEnoughCommits,'pelo menos 10 commits',                `${commitCount} commit(s) na branch padrão${commitCount >= 100 ? '+' : ''}`),
+              fmt(hasDistinctDates,'commits em ao menos 5 datas distintas',`${distinctDatesCount} data(s) distinta(s) nos últimos 100 commits`),
               '',
               allOk
                 ? '**Tudo verde.** A submissão passou na validação automática e segue para a triagem humana entre 21/06 e 22/06.'
